@@ -108,6 +108,7 @@
   }
   .species-tab.active { border-color: var(--leaf); box-shadow: var(--shadow), 0 0 0 3px rgba(79,154,86,0.25); }
   .species-tab.locked { opacity: 0.55; }
+  .species-tab .dino-icon { width: 34px; height: 34px; }
   .species-tab .lock-badge {
     position: absolute; bottom: -2px; right: -2px;
     font-size: 0.7rem;
@@ -133,6 +134,96 @@
   #playArea[data-species="oviraptor"]     { background: linear-gradient(180deg, #d9c9f2 0%, #a889d6 55%, #6f5aa8 100%); }
   #playArea[data-species="velociraptor"]  { background: linear-gradient(180deg, #ffd9a3 0%, #f0985a 55%, #c9622f 100%); }
   #playArea[data-species="trex"]          { background: linear-gradient(180deg, #4a2c2c 0%, #6e2b2b 55%, #3a1414 100%); }
+  #playArea[data-species="spinosaurus"]   { background: linear-gradient(180deg, #bfe4ee 0%, #6fb8cf 55%, #2f6f8a 100%); }
+
+  /* ---------- Landscape scenery (behind food + dino, non-interactive) ---------- */
+  .scenery { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .scenery .sky-deco, .scenery .ground-far, .scenery .ground-near { position: absolute; left: 0; right: 0; }
+  .scenery .sky-deco { top: 0; height: 45%; }
+  .scenery .ground-far { bottom: 0; height: 42%; }
+  .scenery .ground-near { bottom: 0; height: 16%; }
+
+  #playArea[data-species="compsognathus"] .sky-deco { background: radial-gradient(circle at 82% 20%, rgba(255,250,205,0.85) 0%, rgba(255,250,205,0) 14%); }
+  #playArea[data-species="compsognathus"] .ground-far {
+    background: #6fae4a; opacity: 0.55;
+    clip-path: polygon(0% 100%,0% 55%,10% 45%,22% 60%,34% 40%,48% 58%,60% 42%,72% 60%,84% 46%,100% 58%,100% 100%);
+  }
+  #playArea[data-species="compsognathus"] .ground-near { background: repeating-linear-gradient(78deg, #5a9e3e 0 5px, transparent 5px 22px); }
+
+  #playArea[data-species="stegosaurus"] .sky-deco { background: radial-gradient(circle at 15% 15%, rgba(220,255,225,0.5) 0%, transparent 16%); }
+  #playArea[data-species="stegosaurus"] .ground-far {
+    background: #245c37; opacity: 0.7;
+    clip-path: polygon(0% 100%,0% 65%,4% 35%,9% 60%,14% 30%,19% 58%,24% 32%,29% 60%,34% 34%,39% 58%,44% 30%,49% 60%,54% 34%,59% 58%,64% 32%,69% 60%,74% 30%,79% 58%,84% 34%,89% 60%,94% 32%,100% 58%,100% 100%);
+  }
+  #playArea[data-species="stegosaurus"] .ground-near {
+    background: #1c4a2c;
+    clip-path: polygon(0% 100%,0% 40%,6% 70%,12% 30%,18% 68%,24% 35%,30% 70%,36% 30%,42% 68%,48% 35%,54% 70%,60% 30%,66% 68%,72% 35%,78% 70%,84% 30%,90% 68%,96% 35%,100% 60%,100% 100%);
+  }
+
+  #playArea[data-species="triceratops"] .sky-deco { background: radial-gradient(circle at 80% 18%, rgba(255,247,210,0.7) 0%, transparent 15%); }
+  #playArea[data-species="triceratops"] .ground-far {
+    background: #8d7c4a; opacity: 0.6;
+    clip-path: polygon(0% 100%,0% 70%,20% 55%,45% 68%,70% 50%,100% 66%,100% 100%);
+  }
+  #playArea[data-species="triceratops"] .ground-near {
+    background:
+      radial-gradient(ellipse 10% 60% at 12% 100%, #6f6338 0%, transparent 100%),
+      radial-gradient(ellipse 12% 70% at 35% 100%, #77693c 0%, transparent 100%),
+      radial-gradient(ellipse 9% 55% at 62% 100%, #6f6338 0%, transparent 100%),
+      radial-gradient(ellipse 11% 65% at 85% 100%, #77693c 0%, transparent 100%);
+  }
+
+  #playArea[data-species="oviraptor"] .sky-deco {
+    background:
+      radial-gradient(circle at 78% 18%, #f4ecff 0%, rgba(244,236,255,0) 6%),
+      radial-gradient(circle at 20% 12%, rgba(255,255,255,0.9) 0%, transparent 1.2%),
+      radial-gradient(circle at 35% 25%, rgba(255,255,255,0.8) 0%, transparent 1%),
+      radial-gradient(circle at 55% 10%, rgba(255,255,255,0.85) 0%, transparent 1.1%),
+      radial-gradient(circle at 65% 30%, rgba(255,255,255,0.7) 0%, transparent 1%),
+      radial-gradient(circle at 90% 35%, rgba(255,255,255,0.8) 0%, transparent 1%);
+  }
+  #playArea[data-species="oviraptor"] .ground-far {
+    background: #3a2c5c; opacity: 0.75;
+    clip-path: polygon(0% 100%,0% 60%,5% 35%,10% 58%,15% 30%,20% 56%,25% 32%,30% 58%,35% 34%,40% 56%,45% 30%,50% 58%,55% 34%,60% 56%,65% 30%,70% 58%,75% 34%,80% 56%,85% 30%,90% 58%,95% 34%,100% 55%,100% 100%);
+  }
+  #playArea[data-species="oviraptor"] .ground-near { background: #2a2048; }
+
+  #playArea[data-species="velociraptor"] .sky-deco { background: radial-gradient(circle at 20% 15%, rgba(255,235,200,0.7) 0%, transparent 15%); }
+  #playArea[data-species="velociraptor"] .ground-far {
+    background: #a8532a; opacity: 0.6;
+    clip-path: polygon(0% 100%,0% 45%,8% 65%,16% 30%,24% 60%,32% 40%,40% 62%,48% 25%,56% 58%,64% 38%,72% 60%,80% 30%,88% 55%,96% 40%,100% 50%,100% 100%);
+  }
+  #playArea[data-species="velociraptor"] .ground-near {
+    background: #8a3f22;
+    clip-path: polygon(0% 100%,0% 70%,10% 85%,20% 60%,30% 82%,40% 65%,50% 84%,60% 62%,70% 82%,80% 65%,90% 84%,100% 70%,100% 100%);
+  }
+
+  #playArea[data-species="trex"] .sky-deco {
+    background: radial-gradient(circle at 70% 65%, rgba(255,150,60,0.9) 0%, rgba(255,90,30,0.4) 10%, transparent 22%);
+    animation: lavaGlow 3s ease-in-out infinite;
+  }
+  @keyframes lavaGlow { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+  #playArea[data-species="trex"] .ground-far {
+    background: #241010;
+    clip-path: polygon(0% 100%,0% 70%,30% 20%,45% 55%,55% 15%,70% 55%,100% 65%,100% 100%);
+  }
+  #playArea[data-species="trex"] .ground-near {
+    background: #150808;
+    clip-path: polygon(0% 100%,0% 60%,12% 78%,24% 55%,36% 80%,48% 58%,60% 80%,72% 55%,84% 80%,96% 60%,100% 70%,100% 100%);
+  }
+
+  #playArea[data-species="spinosaurus"] .sky-deco { background: radial-gradient(circle at 78% 18%, rgba(255,255,255,0.8) 0%, transparent 12%); }
+  #playArea[data-species="spinosaurus"] .ground-far {
+    background: #2c6b82; opacity: 0.55;
+    clip-path: polygon(0% 100%,0% 60%,15% 50%,30% 62%,45% 48%,60% 62%,75% 50%,100% 60%,100% 100%);
+  }
+  #playArea[data-species="spinosaurus"] .ground-near {
+    height: 30%;
+    background: repeating-linear-gradient(115deg, rgba(255,255,255,0.35) 0 4px, transparent 4px 30px), #1f4f63;
+    background-size: 140% 100%, 100% 100%;
+    animation: waterDrift 6s linear infinite;
+  }
+  @keyframes waterDrift { from { background-position: 0 0, 0 0; } to { background-position: -140px 0, 0 0; } }
 
   /* ---------- Dino ---------- */
   #dino {
@@ -143,56 +234,36 @@
     pointer-events: none;
     z-index: 5;
     transition: width 0.3s ease, height 0.3s ease;
+    filter: drop-shadow(0 6px 8px rgba(0,0,0,0.25));
   }
-  #dino .dino-body {
-    position: absolute;
-    left: 50%; bottom: 6%;
-    transform: translateX(-50%);
-    width: 46%; height: 34%;
-    background: var(--dino-color, #4f9a56);
-    border-radius: 50% 50% 45% 45%;
-    box-shadow: inset 0 -6px 10px rgba(0,0,0,0.15);
+  #dino svg, .dino-icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+  .dino-head, .dino-body, .dino-mouth {
+    transform-box: fill-box;
+    transform-origin: center;
   }
-  #dino .dino-head {
-    position: absolute;
-    left: 50%; top: 2%;
-    transform: translateX(-50%);
-    width: 78%; height: 68%;
-    background: var(--dino-color, #4f9a56);
-    border-radius: 50%;
-    box-shadow: inset 0 -8px 14px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.2);
-  }
-  #dino .dino-eye {
-    position: absolute;
-    top: 32%;
-    width: 15%; height: 15%;
-    background: #fff;
-    border-radius: 50%;
-    box-shadow: 0 0 0 2px rgba(0,0,0,0.08) inset;
-  }
-  #dino .dino-eye::after {
-    content: "";
-    position: absolute;
-    top: 28%; left: 28%;
-    width: 44%; height: 44%;
-    background: #21301f;
-    border-radius: 50%;
-  }
-  #dino .dino-eye.left { left: 20%; }
-  #dino .dino-eye.right { right: 20%; }
-  #dino .dino-mouth {
-    position: absolute;
-    left: 50%; bottom: 14%;
-    transform: translateX(-50%);
-    width: 46%; height: 16%;
-    background: #21301f;
-    border-radius: 0 0 50% 50%;
-    opacity: 0.85;
-    transition: transform 0.15s ease;
-  }
-  #dino.chomp .dino-mouth { transform: translateX(-50%) scaleY(1.6); }
+  .dino-mouth { transition: transform 0.15s ease; }
+  #dino.chomp .dino-mouth { transform: scaleY(1.6); }
   #dino.grew .dino-head, #dino.grew .dino-body { animation: growPop 0.5s ease; }
-  @keyframes growPop { 0% { filter: brightness(1); } 40% { filter: brightness(1.4); transform: translateX(-50%) scale(1.12); } 100% { filter: brightness(1); } }
+  @keyframes growPop { 0% { filter: brightness(1); } 40% { filter: brightness(1.4); transform: scale(1.12); } 100% { filter: brightness(1); } }
+
+  /* ---------- Growth burst ---------- */
+  .growth-burst { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 6; }
+  .burst-ring {
+    position: absolute; left: 50%; top: 50%;
+    width: 40px; height: 40px; margin: -20px 0 0 -20px;
+    border: 6px solid var(--burst-color, #4f9a56);
+    border-radius: 50%;
+    animation: burstRing 0.6s ease-out forwards;
+  }
+  @keyframes burstRing { from { transform: scale(0.3); opacity: 0.85; } to { transform: scale(2.4); opacity: 0; } }
+  .burst-dot {
+    position: absolute; left: 50%; top: 50%;
+    width: 10px; height: 10px; margin: -5px 0 0 -5px;
+    background: var(--burst-color, #4f9a56);
+    border-radius: 50%;
+    animation: burstDot 0.6s ease-out forwards;
+  }
+  @keyframes burstDot { to { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
 
   /* ---------- Food items ---------- */
   .food {
@@ -320,6 +391,7 @@
   }
   .pedia-card.locked { opacity: 0.5; }
   .pedia-card .p-emoji { font-size: 1.7rem; }
+  .pedia-card .dino-icon { width: 40px; height: 40px; }
   .pedia-card .p-name { font-size: 0.66rem; font-weight: 800; }
   .pedia-card .p-diet { font-size: 0.58rem; font-weight: 700; color: var(--ink-soft); }
   .pedia-close {
@@ -360,14 +432,12 @@
   <nav class="species-tabs" id="speciesTabs"></nav>
 
   <main id="playArea" data-species="compsognathus">
-    <div id="dino">
-      <div class="dino-body"></div>
-      <div class="dino-head">
-        <span class="dino-eye left"></span>
-        <span class="dino-eye right"></span>
-        <span class="dino-mouth"></span>
-      </div>
+    <div class="scenery" aria-hidden="true">
+      <div class="sky-deco"></div>
+      <div class="ground-far"></div>
+      <div class="ground-near"></div>
     </div>
+    <div id="dino"></div>
   </main>
 </div>
 
@@ -416,6 +486,7 @@ const CONFIG = {
 const STAGE_ORDER = ["baby", "juvenile", "adult", "giant"];
 const STAGE_LABEL = { baby: "Baby", juvenile: "Juvenile", adult: "Adult", giant: "Giant" };
 const STAGE_SCALE = { baby: 0.55, juvenile: 0.75, adult: 1.0, giant: 1.3 };
+const STAGE_FEATURE_SCALE = { baby: 0.5, juvenile: 0.75, adult: 1.0, giant: 1.1 };
 const STAGE_ALLOWED_SIZES = {
   baby: ["small"],
   juvenile: ["small", "medium"],
@@ -428,41 +499,146 @@ const SIZE_PX = { small: 34, medium: 46, large: 58 };
 const SPECIES = [
   {
     id: "compsognathus", name: "Compsognathus", diet: "carnivore", color: "#4f9a56", emoji: "🦖",
+    features: ["tail", "arms"],
     fact: "Compsognathus was only about the size of a chicken, and it hunted bugs and small lizards."
   },
   {
     id: "stegosaurus", name: "Stegosaurus", diet: "herbivore", color: "#3f8a54", emoji: "🦕",
+    features: ["plates", "tail"],
     fact: "Stegosaurus had a brain about the size of a walnut, but back plates as tall as a person."
   },
   {
     id: "triceratops", name: "Triceratops", diet: "herbivore", color: "#a69a5c", emoji: "🦕",
+    features: ["frill", "horns"], hitRadiusFactor: 0.46,
     fact: "Triceratops used its sharp beak to snip through tough branches and ferns."
   },
   {
     id: "oviraptor", name: "Oviraptor", diet: "omnivore", color: "#6f5aa8", emoji: "🐦",
+    features: ["crest", "arms"],
     fact: "Oviraptor was an omnivore — it ate both plants and small animals, whatever it could find."
   },
   {
     id: "velociraptor", name: "Velociraptor", diet: "carnivore", color: "#c9622f", emoji: "🦖",
+    features: ["tail", "arms"],
     fact: "Velociraptor was only about the size of a turkey — much smaller than in the movies!"
   },
   {
     id: "trex", name: "T-Rex", diet: "carnivore", color: "#8a2e2e", emoji: "🦖",
+    features: ["arms", "teeth"],
     fact: "Tyrannosaurus rex had one of the strongest bites ever measured in a land animal."
+  },
+  {
+    id: "spinosaurus", name: "Spinosaurus", diet: "piscivore", color: "#2f6f8a", emoji: "🦕",
+    features: ["sail", "tail"],
+    fact: "Spinosaurus had dense bones and a paddle-like tail for swimming, and cone-shaped teeth built for gripping slippery fish rather than slicing meat."
   }
 ];
-const DIET_LABEL = { carnivore: "Carnivore", herbivore: "Herbivore", omnivore: "Omnivore" };
-const DIET_ACCEPTS = { carnivore: ["meat"], herbivore: ["plant"], omnivore: ["plant", "meat"] };
+const DIET_LABEL = { carnivore: "Carnivore", herbivore: "Herbivore", omnivore: "Omnivore", piscivore: "Piscivore" };
+const DIET_ACCEPTS = { carnivore: ["meat"], herbivore: ["plant"], omnivore: ["plant", "meat"], piscivore: ["fish"] };
 
 const FOOD_TYPES = [
   { id: "leaf", kind: "plant", size: "small", emoji: "🌿" },
   { id: "fern", kind: "plant", size: "medium", emoji: "🌾" },
   { id: "tree", kind: "plant", size: "large", emoji: "🌳" },
   { id: "bug", kind: "meat", size: "small", emoji: "🐛" },
-  { id: "fish", kind: "meat", size: "medium", emoji: "🐟" },
+  { id: "drumstick", kind: "meat", size: "medium", emoji: "🍗" },
   { id: "meat", kind: "meat", size: "large", emoji: "🍖" },
-  { id: "rock", kind: "none", size: "small", emoji: "🪨" }
+  { id: "minnow", kind: "fish", size: "small", emoji: "🐠" },
+  { id: "fish", kind: "fish", size: "medium", emoji: "🐟" },
+  { id: "bigfish", kind: "fish", size: "large", emoji: "🐡" }
 ];
+
+// ---------------------------------------------------------------------
+// Dino renderer — one shared SVG generator used for the play-area dino,
+// species tab icons, and Dino-pedia cards, so they always match and
+// automatically reflect that species' current growth stage.
+// ---------------------------------------------------------------------
+const DINO_INK = "#21301f";
+let gradientSeq = 0;
+
+function shadeColor(hex, percent) {
+  const num = parseInt(hex.slice(1), 16);
+  const clamp = (v) => Math.max(0, Math.min(255, v));
+  const r = clamp((num >> 16) + percent);
+  const g = clamp(((num >> 8) & 0xff) + percent);
+  const b = clamp((num & 0xff) + percent);
+  return "#" + (0x1000000 + r * 0x10000 + g * 0x100 + b).toString(16).slice(1);
+}
+
+const FEATURE_LAYER = { frill: "back", tail: "front", plates: "front", sail: "front", arms: "front", horns: "front", crest: "front", teeth: "mouth" };
+
+const FEATURE_RENDERERS = {
+  tail: (sp, scale, gid) => {
+    const len = 55 * scale;
+    return `<polygon points="128,140 128,170 ${128 + len},153" fill="url(#${gid})"/>`;
+  },
+  arms: (sp, scale) => {
+    const dark = shadeColor(sp.color, -15);
+    return `<ellipse cx="${100 - 38 * scale}" cy="136" rx="${13 * scale}" ry="${8 * scale}" fill="${dark}"/>
+      <ellipse cx="${100 + 38 * scale}" cy="136" rx="${13 * scale}" ry="${8 * scale}" fill="${dark}"/>`;
+  },
+  // Plates/sail/crest all read as "back of the head" decorations in this front-facing
+  // silhouette, rising above the head's top edge (y=4) where nothing else can cover them —
+  // positioning them over the body instead would just hide them under the (much wider) head.
+  plates: (sp) => {
+    const xs = [72, 86, 100, 114, 128];
+    const heights = [24, 32, 40, 32, 24];
+    return xs.map((x, i) => `<polygon points="${x - 9},10 ${x + 9},10 ${x},${10 - heights[i]}" fill="#c0524a"/>`).join("");
+  },
+  frill: (sp, scale) => {
+    const rx = 118 * scale, ry = 82 * scale;
+    return `<ellipse cx="100" cy="55" rx="${rx}" ry="${ry}" fill="#c9a876"/>
+      <ellipse cx="100" cy="55" rx="${rx - 10}" ry="${ry - 10}" fill="${shadeColor(sp.color, -10)}"/>`;
+  },
+  horns: (sp, scale) => {
+    const light = shadeColor(sp.color, 60);
+    const h = 26 * scale;
+    return `<polygon points="70,30 62,${30 - h} 78,26" fill="${light}"/>
+      <polygon points="130,30 138,${30 - h} 122,26" fill="${light}"/>
+      <polygon points="100,44 94,${44 - h * 0.6} 106,44" fill="${light}"/>`;
+  },
+  sail: () => `<polygon points="66,12 84,-70 100,-82 116,-70 134,10 108,22 92,22" fill="#c0524a"/>`,
+  crest: () => `<polygon points="80,14 124,10 106,-24 94,-18" fill="#c0524a"/>`,
+  tail: (sp, scale, gid) => {
+    const len = 55 * scale;
+    return `<polygon points="132,148 132,172 ${132 + len},156" fill="url(#${gid})"/>`;
+  },
+  teeth: (sp, scale) => {
+    const xs = [76, 91, 106, 121];
+    const h = 10 * scale;
+    return xs.map((x) => `<polygon points="${x - 5},103 ${x + 5},103 ${x},${103 + h}" fill="#fff"/>`).join("");
+  }
+};
+
+function renderDinoMarkup(sp, stage) {
+  const scale = STAGE_FEATURE_SCALE[stage] ?? 1;
+  const gid = `dinoGrad-${gradientSeq++}`;
+  const light = shadeColor(sp.color, 45);
+  const dark = shadeColor(sp.color, -35);
+  const defs = `<defs><linearGradient id="${gid}" x1="10%" y1="0%" x2="70%" y2="100%">
+    <stop offset="0%" stop-color="${light}"/>
+    <stop offset="55%" stop-color="${sp.color}"/>
+    <stop offset="100%" stop-color="${dark}"/>
+  </linearGradient></defs>`;
+
+  const layers = { back: [], front: [], mouth: [] };
+  (sp.features || []).forEach((f) => {
+    const renderer = FEATURE_RENDERERS[f];
+    if (!renderer) return;
+    layers[FEATURE_LAYER[f] || "front"].push(renderer(sp, scale, gid));
+  });
+
+  const body = `<ellipse class="dino-body" cx="100" cy="154" rx="46" ry="34" fill="url(#${gid})"/>`;
+  const head = `<ellipse class="dino-head" cx="100" cy="72" rx="78" ry="68" fill="url(#${gid})"/>`;
+  const mouth = `<ellipse class="dino-mouth" cx="100" cy="113" rx="34" ry="12" fill="${DINO_INK}" opacity="0.85"/>`;
+  const iris = shadeColor(sp.color, 70);
+  const eyes = `<circle cx="68" cy="60" r="19" fill="#fff"/><circle cx="132" cy="60" r="19" fill="#fff"/>
+    <circle cx="68" cy="61" r="12" fill="${iris}"/><circle cx="132" cy="61" r="12" fill="${iris}"/>
+    <circle cx="68" cy="62" r="7" fill="${DINO_INK}"/><circle cx="132" cy="62" r="7" fill="${DINO_INK}"/>
+    <circle cx="65" cy="57" r="3" fill="#fff"/><circle cx="129" cy="57" r="3" fill="#fff"/>`;
+
+  return `<svg viewBox="0 0 200 200">${defs}${layers.back.join("")}${body}${head}${layers.front.join("")}${eyes}${mouth}${layers.mouth.join("")}</svg>`;
+}
 
 const STATE_KEY = "dino-diet-state-v1";
 const $ = (sel) => document.querySelector(sel);
@@ -499,8 +675,11 @@ function renderTabs() {
   $("#speciesTabs").innerHTML = SPECIES.map((sp) => {
     const unlocked = isUnlocked(sp.id);
     const active = sp.id === state.activeSpeciesId;
+    const icon = unlocked
+      ? `<span class="dino-icon">${renderDinoMarkup(sp, speciesProgress(sp.id).stage)}</span>`
+      : "❔";
     return `<button class="species-tab ${active ? "active" : ""} ${unlocked ? "" : "locked"}" data-species="${sp.id}" aria-label="${sp.name}">
-      ${unlocked ? sp.emoji : "❔"}
+      ${icon}
       ${unlocked ? "" : '<span class="lock-badge">🔒</span>'}
     </button>`;
   }).join("");
@@ -540,6 +719,7 @@ function applySpeciesTheme() {
   const base = 120;
   dino.style.width = (base * scale) + "px";
   dino.style.height = (base * scale) + "px";
+  dino.innerHTML = renderDinoMarkup(sp, prog.stage);
 }
 
 function renderGrowthBar() {
@@ -587,14 +767,12 @@ function weightedFoodDef(sp, stage) {
   const allowedSizes = STAGE_ALLOWED_SIZES[stage];
   const r = Math.random();
   let pool;
-  if (r < 0.55) {
+  if (r < 0.6) {
     pool = FOOD_TYPES.filter((f) => accepted.includes(f.kind));
     const reachable = pool.filter((f) => allowedSizes.includes(f.size));
     if (reachable.length && Math.random() < CONFIG.reachableSpawnBias) pool = reachable;
-  } else if (r < 0.85) {
-    pool = FOOD_TYPES.filter((f) => f.kind !== "none" && !accepted.includes(f.kind));
   } else {
-    pool = FOOD_TYPES.filter((f) => f.kind === "none");
+    pool = FOOD_TYPES.filter((f) => !accepted.includes(f.kind));
   }
   if (!pool.length) pool = FOOD_TYPES.filter((f) => accepted.includes(f.kind));
   return pool[Math.floor(Math.random() * pool.length)];
@@ -688,11 +866,31 @@ function gainGrowth(points) {
   renderGrowthBar();
 }
 
+function spawnGrowthBurst(sp) {
+  const burst = document.createElement("div");
+  burst.className = "growth-burst";
+  burst.style.transform = `translate(${dinoPos.x}px, ${dinoPos.y}px)`;
+  burst.style.setProperty("--burst-color", sp.color);
+  burst.innerHTML = `<div class="burst-ring"></div>`;
+  for (let i = 0; i < 8; i++) {
+    const angle = (i / 8) * Math.PI * 2;
+    const dot = document.createElement("div");
+    dot.className = "burst-dot";
+    dot.style.setProperty("--dx", `${Math.cos(angle) * 55}px`);
+    dot.style.setProperty("--dy", `${Math.sin(angle) * 55}px`);
+    burst.appendChild(dot);
+  }
+  playArea.appendChild(burst);
+  setTimeout(() => burst.remove(), 650);
+}
+
 function onStageUp(sp, newStage) {
   applySpeciesTheme();
   renderGrowthBar();
+  renderTabs();
   dinoEl.classList.add("grew");
   setTimeout(() => dinoEl.classList.remove("grew"), 500);
+  spawnGrowthBurst(sp);
 
   if (newStage !== "giant") {
     toast(`${sp.name} grew to ${STAGE_LABEL[newStage]}!`, true);
@@ -773,7 +971,7 @@ function tick(ts) {
   lastFrame = ts;
 
   const rect = playArea.getBoundingClientRect();
-  const dinoRadius = dinoEl.offsetWidth * 0.4;
+  const dinoRadius = dinoEl.offsetWidth * (activeSpecies().hitRadiusFactor ?? 0.4);
 
   for (const item of foodItems) {
     if (ts > item.expiresAt) { expireFood(item); continue; }
@@ -808,7 +1006,7 @@ function renderPedia() {
       return `<div class="pedia-card locked"><span class="p-emoji">❔</span><span class="p-name">???</span></div>`;
     }
     return `<button class="pedia-card" data-species="${sp.id}">
-      <span class="p-emoji">${sp.emoji}</span>
+      <span class="dino-icon">${renderDinoMarkup(sp, "giant")}</span>
       <span class="p-name">${sp.name}</span>
       <span class="p-diet">${DIET_LABEL[sp.diet]}</span>
     </button>`;
