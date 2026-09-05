@@ -138,6 +138,8 @@
 
   /* ---------- Landscape scenery (behind food + dino, non-interactive) ---------- */
   .scenery { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  /* Hidden once a real background photo (assets/bg-<id>.png) has loaded for this species. */
+  #playArea.has-photo-bg .scenery { display: none; }
   .scenery .sky-deco, .scenery .ground-far, .scenery .ground-near { position: absolute; left: 0; right: 0; }
   .scenery .sky-deco { top: 0; height: 45%; }
   .scenery .ground-far { bottom: 0; height: 42%; }
@@ -237,33 +239,58 @@
     filter: drop-shadow(0 6px 8px rgba(0,0,0,0.25));
   }
   #dino svg, .dino-icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
-  .dino-head, .dino-body, .dino-mouth {
-    transform-box: fill-box;
-    transform-origin: center;
+  /* .dino-visual wraps the SVG fallback + an optional real photo, so any
+     species/stage can upgrade to real art (dino-diet/assets/<id>-<stage>.png)
+     without a code change — see renderDinoVisual(). */
+  .dino-visual { position: relative; display: block; width: 100%; height: 100%; }
+  .dino-visual .dino-photo {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: contain; display: none;
   }
-  .dino-mouth { transition: transform 0.15s ease; }
-  #dino.chomp .dino-mouth { transform: scaleY(1.6); }
-  #dino.grew .dino-head, #dino.grew .dino-body { animation: growPop 0.5s ease; }
-  @keyframes growPop { 0% { filter: brightness(1); } 40% { filter: brightness(1.4); transform: scale(1.12); } 100% { filter: brightness(1); } }
+  /* Chomp/grow animate the whole visual (not individual SVG parts) so they
+     work identically whether a species is showing vector art or a real photo. */
+  #dino.chomp .dino-visual { animation: chompBounce 0.18s ease; }
+  @keyframes chompBounce { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(0.88, 1.14); } }
+  #dino.grew .dino-visual { animation: growPop 0.7s ease; }
+  @keyframes growPop { 0% { filter: brightness(1); transform: scale(1); } 35% { filter: brightness(1.6); transform: scale(1.3); } 100% { filter: brightness(1); transform: scale(1); } }
 
   /* ---------- Growth burst ---------- */
   .growth-burst { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 6; }
   .burst-ring {
     position: absolute; left: 50%; top: 50%;
-    width: 40px; height: 40px; margin: -20px 0 0 -20px;
-    border: 6px solid var(--burst-color, #4f9a56);
+    width: 54px; height: 54px; margin: -27px 0 0 -27px;
+    border: 8px solid #ffd23f;
     border-radius: 50%;
-    animation: burstRing 0.6s ease-out forwards;
+    animation: burstRing 1.1s ease-out forwards;
   }
-  @keyframes burstRing { from { transform: scale(0.3); opacity: 0.85; } to { transform: scale(2.4); opacity: 0; } }
+  .burst-ring.ring2 { border-color: #fff; animation-delay: 0.15s; }
+  @keyframes burstRing { from { transform: scale(0.3); opacity: 0.95; } to { transform: scale(3.6); opacity: 0; } }
   .burst-dot {
     position: absolute; left: 50%; top: 50%;
-    width: 10px; height: 10px; margin: -5px 0 0 -5px;
-    background: var(--burst-color, #4f9a56);
+    width: 13px; height: 13px; margin: -6.5px 0 0 -6.5px;
+    background: radial-gradient(circle, #fff 0%, #ffd23f 70%);
     border-radius: 50%;
-    animation: burstDot 0.6s ease-out forwards;
+    animation: burstDot 1.2s ease-out forwards;
   }
   @keyframes burstDot { to { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
+  .burst-label {
+    position: absolute; left: 50%; top: -26px;
+    transform: translateX(-50%);
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800; font-size: 1.5rem;
+    color: #ffd23f;
+    -webkit-text-stroke: 2px #21301f;
+    paint-order: stroke fill;
+    white-space: nowrap;
+    animation: burstLabel 1.5s ease-out forwards;
+  }
+  @keyframes burstLabel {
+    0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(0.7); }
+    15% { opacity: 1; transform: translateX(-50%) translateY(-12px) scale(1.2); }
+    30% { transform: translateX(-50%) translateY(-16px) scale(1); }
+    75% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-46px) scale(1); }
+  }
 
   /* ---------- Food items ---------- */
   .food {
@@ -350,7 +377,7 @@
     border-radius: 999px;
     margin-bottom: 10px;
   }
-  .reveal-emoji { font-size: 4rem; margin: 6px 0; }
+  .reveal-emoji { width: 130px; height: 130px; margin: 6px auto; }
   .reveal-name { font-size: 1.25rem; font-weight: 800; margin: 4px 0 2px; }
   .reveal-diet { font-size: 0.75rem; font-weight: 800; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
   .reveal-fact { font-size: 0.88rem; color: var(--ink-soft); font-weight: 600; line-height: 1.4; margin-bottom: 18px; }
@@ -364,6 +391,7 @@
     font-size: 1rem;
     box-shadow: 0 4px 0 #326a38;
   }
+  .btn-danger { background: #c0524a; box-shadow: 0 4px 0 #8a3a34; }
   .btn-primary:active { transform: translateY(3px); box-shadow: none; }
 
   /* ---------- Pedia ---------- */
@@ -427,6 +455,7 @@
       <div class="growth-bar"><div class="growth-fill" id="growthFill"></div></div>
     </div>
     <button class="icon-btn" id="pediaBtn" aria-label="Dino-pedia">📖</button>
+    <button class="icon-btn" id="resetBtn" aria-label="Reset progress">⚙️</button>
   </header>
 
   <nav class="species-tabs" id="speciesTabs"></nav>
@@ -463,6 +492,16 @@
   </div>
 </div>
 
+<!-- Reset confirmation -->
+<div class="backdrop" id="resetBackdrop" hidden>
+  <div class="reveal-card">
+    <div class="reveal-name">Reset all progress?</div>
+    <div class="reveal-fact">Every dinosaur goes back to Baby and the Dino-pedia empties out. This can't be undone.</div>
+    <button class="btn-primary btn-danger" id="resetConfirm">Reset everything</button>
+    <button class="pedia-close" id="resetCancel">Cancel</button>
+  </div>
+</div>
+
 <div id="toastContainer"></div>
 
 <script>
@@ -485,7 +524,7 @@ const CONFIG = {
 
 const STAGE_ORDER = ["baby", "juvenile", "adult", "giant"];
 const STAGE_LABEL = { baby: "Baby", juvenile: "Juvenile", adult: "Adult", giant: "Giant" };
-const STAGE_SCALE = { baby: 0.55, juvenile: 0.75, adult: 1.0, giant: 1.3 };
+const STAGE_SCALE = { baby: 0.4, juvenile: 0.7, adult: 1.05, giant: 1.55 };
 const STAGE_FEATURE_SCALE = { baby: 0.5, juvenile: 0.75, adult: 1.0, giant: 1.1 };
 const STAGE_ALLOWED_SIZES = {
   baby: ["small"],
@@ -498,37 +537,37 @@ const SIZE_PX = { small: 34, medium: 46, large: 58 };
 
 const SPECIES = [
   {
-    id: "compsognathus", name: "Compsognathus", diet: "carnivore", color: "#4f9a56", emoji: "🦖",
+    id: "compsognathus", name: "Compsognathus", diet: "carnivore", color: "#4f9a56",
     features: ["tail", "arms"],
     fact: "Compsognathus was only about the size of a chicken, and it hunted bugs and small lizards."
   },
   {
-    id: "stegosaurus", name: "Stegosaurus", diet: "herbivore", color: "#3f8a54", emoji: "🦕",
+    id: "stegosaurus", name: "Stegosaurus", diet: "herbivore", color: "#3f8a54",
     features: ["plates", "tail"],
     fact: "Stegosaurus had a brain about the size of a walnut, but back plates as tall as a person."
   },
   {
-    id: "triceratops", name: "Triceratops", diet: "herbivore", color: "#a69a5c", emoji: "🦕",
+    id: "triceratops", name: "Triceratops", diet: "herbivore", color: "#a69a5c",
     features: ["frill", "horns"], hitRadiusFactor: 0.46,
     fact: "Triceratops used its sharp beak to snip through tough branches and ferns."
   },
   {
-    id: "oviraptor", name: "Oviraptor", diet: "omnivore", color: "#6f5aa8", emoji: "🐦",
+    id: "oviraptor", name: "Oviraptor", diet: "omnivore", color: "#6f5aa8",
     features: ["crest", "arms"],
     fact: "Oviraptor was an omnivore — it ate both plants and small animals, whatever it could find."
   },
   {
-    id: "velociraptor", name: "Velociraptor", diet: "carnivore", color: "#c9622f", emoji: "🦖",
+    id: "velociraptor", name: "Velociraptor", diet: "carnivore", color: "#c9622f",
     features: ["tail", "arms"],
     fact: "Velociraptor was only about the size of a turkey — much smaller than in the movies!"
   },
   {
-    id: "trex", name: "T-Rex", diet: "carnivore", color: "#8a2e2e", emoji: "🦖",
+    id: "trex", name: "T-Rex", diet: "carnivore", color: "#8a2e2e",
     features: ["arms", "teeth"],
     fact: "Tyrannosaurus rex had one of the strongest bites ever measured in a land animal."
   },
   {
-    id: "spinosaurus", name: "Spinosaurus", diet: "piscivore", color: "#2f6f8a", emoji: "🦕",
+    id: "spinosaurus", name: "Spinosaurus", diet: "piscivore", color: "#2f6f8a",
     features: ["sail", "tail"],
     fact: "Spinosaurus had dense bones and a paddle-like tail for swimming, and cone-shaped teeth built for gripping slippery fish rather than slicing meat."
   }
@@ -640,6 +679,32 @@ function renderDinoMarkup(sp, stage) {
   return `<svg viewBox="0 0 200 200">${defs}${layers.back.join("")}${body}${head}${layers.front.join("")}${eyes}${mouth}${layers.mouth.join("")}</svg>`;
 }
 
+// Wraps the SVG fallback with an optional real photo. If dino-diet/assets/<id>-<stage>.png
+// exists it silently replaces the vector art (there and only there); otherwise the SVG
+// stays visible. No manifest needed — presence is detected by trying to load the file.
+function renderDinoVisual(sp, stage) {
+  const svg = renderDinoMarkup(sp, stage);
+  return `<span class="dino-visual">${svg}<img class="dino-photo" alt="" src="assets/${sp.id}-${stage}.png"
+    onerror="this.remove()"
+    onload="this.previousElementSibling.style.display='none'; this.style.display='block';"></span>`;
+}
+
+// Same idea for backgrounds: try assets/bg-<id>.png, fall back to the CSS scenery.
+function applyBackgroundPhoto(sp) {
+  const img = new Image();
+  img.onload = () => {
+    playArea.style.backgroundImage = `url(assets/bg-${sp.id}.png)`;
+    playArea.style.backgroundSize = "cover";
+    playArea.style.backgroundPosition = "center";
+    playArea.classList.add("has-photo-bg");
+  };
+  img.onerror = () => {
+    playArea.style.backgroundImage = "";
+    playArea.classList.remove("has-photo-bg");
+  };
+  img.src = `assets/bg-${sp.id}.png`;
+}
+
 const STATE_KEY = "dino-diet-state-v1";
 const $ = (sel) => document.querySelector(sel);
 
@@ -676,7 +741,7 @@ function renderTabs() {
     const unlocked = isUnlocked(sp.id);
     const active = sp.id === state.activeSpeciesId;
     const icon = unlocked
-      ? `<span class="dino-icon">${renderDinoMarkup(sp, speciesProgress(sp.id).stage)}</span>`
+      ? `<span class="dino-icon">${renderDinoVisual(sp, speciesProgress(sp.id).stage)}</span>`
       : "❔";
     return `<button class="species-tab ${active ? "active" : ""} ${unlocked ? "" : "locked"}" data-species="${sp.id}" aria-label="${sp.name}">
       ${icon}
@@ -719,7 +784,8 @@ function applySpeciesTheme() {
   const base = 120;
   dino.style.width = (base * scale) + "px";
   dino.style.height = (base * scale) + "px";
-  dino.innerHTML = renderDinoMarkup(sp, prog.stage);
+  dino.innerHTML = renderDinoVisual(sp, prog.stage);
+  applyBackgroundPhoto(sp);
 }
 
 function renderGrowthBar() {
@@ -866,22 +932,23 @@ function gainGrowth(points) {
   renderGrowthBar();
 }
 
-function spawnGrowthBurst(sp) {
+function spawnGrowthBurst() {
   const burst = document.createElement("div");
   burst.className = "growth-burst";
   burst.style.transform = `translate(${dinoPos.x}px, ${dinoPos.y}px)`;
-  burst.style.setProperty("--burst-color", sp.color);
-  burst.innerHTML = `<div class="burst-ring"></div>`;
-  for (let i = 0; i < 8; i++) {
-    const angle = (i / 8) * Math.PI * 2;
+  burst.innerHTML = `<div class="burst-ring"></div><div class="burst-ring ring2"></div><div class="burst-label">Level Up!</div>`;
+  const particleCount = 14;
+  for (let i = 0; i < particleCount; i++) {
+    const angle = (i / particleCount) * Math.PI * 2;
+    const dist = 70 + Math.random() * 35;
     const dot = document.createElement("div");
     dot.className = "burst-dot";
-    dot.style.setProperty("--dx", `${Math.cos(angle) * 55}px`);
-    dot.style.setProperty("--dy", `${Math.sin(angle) * 55}px`);
+    dot.style.setProperty("--dx", `${Math.cos(angle) * dist}px`);
+    dot.style.setProperty("--dy", `${Math.sin(angle) * dist}px`);
     burst.appendChild(dot);
   }
   playArea.appendChild(burst);
-  setTimeout(() => burst.remove(), 650);
+  setTimeout(() => burst.remove(), 1500);
 }
 
 function onStageUp(sp, newStage) {
@@ -889,8 +956,8 @@ function onStageUp(sp, newStage) {
   renderGrowthBar();
   renderTabs();
   dinoEl.classList.add("grew");
-  setTimeout(() => dinoEl.classList.remove("grew"), 500);
-  spawnGrowthBurst(sp);
+  setTimeout(() => dinoEl.classList.remove("grew"), 700);
+  spawnGrowthBurst();
 
   if (newStage !== "giant") {
     toast(`${sp.name} grew to ${STAGE_LABEL[newStage]}!`, true);
@@ -913,7 +980,7 @@ function onStageUp(sp, newStage) {
 
 function showStageReveal(sp, next, firstTime) {
   $("#revealRibbon").textContent = "Grew to Giant! 🎉";
-  $("#revealEmoji").textContent = sp.emoji;
+  $("#revealEmoji").innerHTML = renderDinoVisual(sp, "giant");
   $("#revealName").textContent = sp.name;
   $("#revealDiet").textContent = DIET_LABEL[sp.diet];
   $("#revealFact").textContent = firstTime
@@ -1006,7 +1073,7 @@ function renderPedia() {
       return `<div class="pedia-card locked"><span class="p-emoji">❔</span><span class="p-name">???</span></div>`;
     }
     return `<button class="pedia-card" data-species="${sp.id}">
-      <span class="dino-icon">${renderDinoMarkup(sp, "giant")}</span>
+      <span class="dino-icon">${renderDinoVisual(sp, "giant")}</span>
       <span class="p-name">${sp.name}</span>
       <span class="p-diet">${DIET_LABEL[sp.diet]}</span>
     </button>`;
@@ -1023,6 +1090,17 @@ $("#pediaGrid").addEventListener("click", (e) => {
   const box = $("#pediaFactBox");
   box.textContent = `${DIET_LABEL[sp.diet]} — ${sp.fact}`;
   box.classList.add("show");
+});
+
+// ---------------------------------------------------------------------
+// Reset
+// ---------------------------------------------------------------------
+$("#resetBtn").addEventListener("click", () => { $("#resetBackdrop").hidden = false; });
+$("#resetCancel").addEventListener("click", () => { $("#resetBackdrop").hidden = true; });
+$("#resetBackdrop").addEventListener("click", (e) => { if (e.target.id === "resetBackdrop") $("#resetBackdrop").hidden = true; });
+$("#resetConfirm").addEventListener("click", () => {
+  localStorage.removeItem(STATE_KEY);
+  location.reload();
 });
 
 // ---------------------------------------------------------------------
