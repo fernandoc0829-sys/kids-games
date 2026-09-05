@@ -1,21 +1,64 @@
+# 🎮 Kids Games
+
+A family collection of browser games for the kids. Each game is a single
+self-contained HTML file — no build step, no npm install, no command line
+required to maintain any of them. Works great on tablets, needs no app
+store, and costs nothing to run.
+
+Open `index.html` to see the menu and pick a game, or jump straight into
+one:
+
+| Game | Folder | What it is |
+|---|---|---|
+| 🌵 Alebrijes Garden | [`alebrijes-garden/`](alebrijes-garden/index.html) | Plant seeds, grow spirit creatures, and discover them together. Shared family progress (optional Firebase sync). |
+| 🦖 Dino Diet | [`dino-diet/`](dino-diet/index.html) | Feed each dinosaur only what it really eats — carnivore, herbivore, or omnivore — and watch it grow up. Solo play for now. |
+
+## Repo structure
+
+- **`index.html`** (root) — the landing page / game menu. Just links out to
+  each game folder; there's nothing to configure here.
+- **One folder per game** (`alebrijes-garden/`, `dino-diet/`, ...), each
+  holding a single self-contained `index.html` with its own HTML/CSS/JS —
+  no shared dependencies between games, no build step.
+
+**Adding a new game:** create `<your-game>/index.html` as a single
+self-contained file (see either existing game for the conventions this repo
+follows — vanilla JS, no framework, Google Fonts only, `localStorage` for
+persistence, mobile-first touch targets), then add a card for it to the
+`.game-grid` in the root `index.html`.
+
+## Hosting on GitHub Pages
+
+All games are static files, so one GitHub Pages setup serves all of them.
+
+1. On GitHub: **Settings → Pages → Source** → "Deploy from a branch" → pick
+   `main` and `/ (root)` → **Save**.
+2. The menu goes live at `https://<your-username>.github.io/<repo>/`, and
+   each game at `https://<your-username>.github.io/<repo>/<game-folder>/`
+   (e.g. `.../kids-games/dino-diet/`).
+3. From then on, editing any file directly on github.com (pencil icon →
+   edit → "Commit changes") updates the live site automatically — no
+   rebuild step.
+
+---
+
 # 🌵 Alebrijes Garden
 
-A shared, magical garden for the family. Plant seeds, watch them grow in real
-time, and discover alebrijes — fantastical spirit creatures — together. Works
-great on tablets, needs no app store, and costs nothing to run.
+A shared, magical garden for the family. Plant seeds, watch them grow in
+real time, and discover alebrijes — fantastical spirit creatures —
+together.
 
-It's a single file: **`index.html`**. No build step, no npm install, no
-command line required to maintain it.
+Lives entirely in **`alebrijes-garden/index.html`**.
 
 ## Play it right now
 
-Open `index.html` in any browser (double-click it, or drag it into a tab).
-It works immediately in **offline demo mode** — one device, saved locally in
-that browser. This is the easiest way to try the game or show it to the kids
-before you set up live syncing.
+Open `alebrijes-garden/index.html` in any browser (double-click it, or drag
+it into a tab). It works immediately in **offline demo mode** — one device,
+saved locally in that browser. This is the easiest way to try the game or
+show it to the kids before you set up live syncing.
 
 To make it sync live across every tablet in the house, follow **Go live**
-below (~50 minutes, no coding, no credit card).
+below (~25 minutes, no coding, no credit card).
 
 ## How the game works
 
@@ -43,26 +86,14 @@ needs zero extra network traffic to do it.
 
 ## Go live: sync across every tablet (free, no credit card)
 
-This uses **GitHub Pages** (hosting) + **Firebase Realtime Database**
-(shared live data) + **Cloudflare Web Analytics** (optional traffic
-monitoring). All three are free forever with no payment method required.
-See [`docs/hosting-research.md`](docs/hosting-research.md) for the full
+This uses the **GitHub Pages** hosting from above plus a **Firebase
+Realtime Database** (shared live data) and, optionally, **Cloudflare Web
+Analytics**. All free forever, no payment method required. See
+[`docs/hosting-research.md`](docs/hosting-research.md) for the full
 reasoning and alternatives considered — this is the condensed, actionable
 version.
 
-### Phase 1 — Host the site on GitHub Pages (~10 min)
-
-1. This repo already contains `index.html` at the root — that's all Pages
-   needs.
-2. On GitHub: **Settings → Pages → Source** → "Deploy from a branch" → pick
-   `main` and `/ (root)` → **Save**.
-3. Your game goes live at `https://<your-username>.github.io/<repo>/` within
-   a minute or two.
-4. From then on, editing `index.html` directly on github.com (pencil icon →
-   edit → "Commit changes") updates the live site automatically — no rebuild
-   step.
-
-### Phase 2 — Add the shared Firebase database (~25 min)
+### Add the shared Firebase database (~25 min)
 
 1. Go to [console.firebase.google.com](https://console.firebase.google.com)
    and create a project (Spark/free plan — no credit card asked).
@@ -93,8 +124,8 @@ version.
    Then click **Publish**.
 5. **Project settings → General → Your apps → Add app → Web**. Register the
    app (no hosting needed) and copy the `firebaseConfig` object it gives you.
-6. Open `index.html`, find the `CONFIG` block near the top of the
-   `<script type="module">` section, and fill in:
+6. Open `alebrijes-garden/index.html`, find the `CONFIG` block near the top
+   of the `<script type="module">` section, and fill in:
 
    ```js
    const CONFIG = {
@@ -123,14 +154,14 @@ month, 100 simultaneous connections, no credit card, no charge is possible
 without deliberately upgrading to the paid plan. A family of under 10 people
 playing a garden game uses a tiny fraction of any of these.
 
-### Phase 3 — Add analytics (optional, ~10 min)
+### Add analytics (optional, ~10 min)
 
 1. Create a free account at [dash.cloudflare.com](https://dash.cloudflare.com).
 2. **Web Analytics → Add a site** → enter your GitHub Pages hostname (you do
    **not** need to move DNS to Cloudflare).
 3. Copy the `<script>` snippet Cloudflare gives you and paste it in
-   `index.html` in place of the commented-out placeholder near the bottom of
-   `<body>` (uncomment it and paste in your token).
+   `alebrijes-garden/index.html` in place of the commented-out placeholder
+   near the bottom of `<body>` (uncomment it and paste in your token).
 4. Commit. Within a day you'll see visits, top pages, and referrers — mainly
    useful for noticing if the link ever leaks beyond the family.
 
@@ -152,7 +183,7 @@ is safely rejected with a friendly toast instead.
 ## Customizing
 
 Everything gameplay-related is in a few clearly-labeled arrays/constants near
-the top of the `<script type="module">` block in `index.html`:
+the top of the `<script type="module">` block in `alebrijes-garden/index.html`:
 
 - `CONFIG` — plot count, grow duration, watering rules, feed length.
 - `SEEDS` — the four seed types, their odds, and growth speed.
@@ -167,10 +198,64 @@ No build step is needed for any of these — edit, save, commit, done.
 - Free-tier limits and terms can change — re-check the Firebase, GitHub
   Pages, and Cloudflare pricing/limits pages if you're relying on specific
   numbers years from now.
-- The repo (and therefore `index.html`, including your Firebase config) is
-  public on GitHub's free plan. That's expected for client-side Firebase
-  apps — security rests on the database rules, not on hiding the config.
-  Don't put anything sensitive in this project.
+- The repo (and therefore `alebrijes-garden/index.html`, including your
+  Firebase config) is public on GitHub's free plan. That's expected for
+  client-side Firebase apps — security rests on the database rules, not on
+  hiding the config. Don't put anything sensitive in this project.
 - If Firebase ever becomes unreachable (typo in config, offline, etc.) the
   game automatically falls back to solo demo mode with a banner explaining
   why, rather than showing a broken page.
+
+---
+
+# 🦖 Dino Diet
+
+Feed each dinosaur only what it really eats — carnivores get meat, herbivores
+get plants, omnivores get both — and watch it grow from baby to giant. A
+playful way to pick up real dinosaur diet facts along the way.
+
+Lives entirely in **`dino-diet/index.html`**. Solo play only for now — no
+account, no setup, just open it and play.
+
+## How the game works
+
+- **Feed by touch** — the dinosaur's mouth follows your finger (or the
+  mouse, while held down) directly. Drag it onto food drifting around the
+  play area to try to eat it.
+- **Diet matters** — each dinosaur is a carnivore, herbivore, or omnivore.
+  Feed it something outside its diet and it just bounces off with a gentle
+  reminder — no penalty, no losing progress.
+- **Size matters too** — a baby dinosaur can only manage small food, even if
+  it's the right diet. Bigger food unlocks as it grows through Baby →
+  Juvenile → Adult → Giant.
+- **Dino-pedia** — reaching Giant for the first time unlocks that
+  dinosaur's entry (diet + a real fact about it) and unlocks the next
+  dinosaur to raise. Tap 📖 any time to browse what's been discovered.
+- **Landscape** — the backdrop changes to match whichever dinosaur you're
+  currently feeding (jungle, shrubland, volcanic rock, and so on).
+
+Progress (growth stage per dinosaur, which are unlocked, and the Dino-pedia)
+is saved to `localStorage`, so it's there when you come back — but it's
+local to that one device/browser for now.
+
+## Customizing
+
+Everything gameplay-related is in a few clearly-labeled constants near the
+top of the `<script>` block in `dino-diet/index.html`:
+
+- `CONFIG` — growth thresholds, spawn rate, item speed.
+- `SPECIES` — the dinosaur roster (name, diet, color, fact) and unlock
+  order. Add your own by adding an entry with a unique `id`.
+- `FOOD_TYPES` — the food roster (which diet it belongs to, its size tier,
+  its emoji).
+
+## Roadmap: shared family progress (not built yet)
+
+Right now Dino Diet is solo/local-only by design (phase 1). A natural phase
+2 is shared family progress — e.g. a family Dino-pedia everyone contributes
+to — following the same pattern Alebrijes Garden already uses: swap the
+plain `localStorage` reads/writes for the same `LocalStore`/`FirebaseStore`
+pair (identical interface, one backed by `localStorage`, one by Firebase
+Realtime Database) so the game automatically falls back to solo demo mode
+if Firebase isn't configured or unreachable.
+</content>
