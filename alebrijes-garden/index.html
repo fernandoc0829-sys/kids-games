@@ -1,0 +1,1236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Alebrijes Garden</title>
+<meta name="description" content="A shared magical garden where alebrijes bloom. Plant seeds, grow spirit creatures, and discover them together.">
+<meta name="theme-color" content="#ff5d8f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8C%B5%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #fdf6e6;
+    --bg-pattern: #f7ecd6;
+    --ink: #2b1d16;
+    --ink-soft: #6b5647;
+    --card: #fffaf0;
+    --card-border: #eddcbd;
+    --pink: #ff5d8f;
+    --teal: #12b3a8;
+    --orange: #ff9f40;
+    --purple: #8a4fff;
+    --gold: #ffd23f;
+    --green: #4caf6d;
+    --soil: #8a5a3b;
+    --shadow: 0 6px 0 rgba(43,29,22,0.12), 0 10px 24px rgba(43,29,22,0.10);
+    --radius: 22px;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(circle at 10% 10%, #fff 0%, transparent 40%),
+      repeating-linear-gradient(135deg, var(--bg) 0px, var(--bg) 26px, var(--bg-pattern) 26px, var(--bg-pattern) 52px);
+    color: var(--ink);
+    font-family: 'Nunito', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  h1, h2, h3, .display { font-family: 'Baloo 2', 'Nunito', system-ui, sans-serif; }
+  button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
+
+  #app {
+    max-width: 720px;
+    margin: 0 auto;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: max(14px, env(safe-area-inset-top)) 16px 10px;
+  }
+  .brand {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--pink);
+    text-shadow: 1px 1px 0 #fff;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .stat-counter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 2px solid var(--card-border);
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    box-shadow: var(--shadow);
+    white-space: nowrap;
+  }
+  .avatar-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--card);
+    border: 2px solid var(--card-border);
+    border-radius: 999px;
+    padding: 6px 10px 6px 6px;
+    font-weight: 700;
+    box-shadow: var(--shadow);
+  }
+  .avatar-chip .av-emoji {
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    background: #fff3d6;
+    border-radius: 50%;
+    font-size: 1rem;
+  }
+  .avatar-chip:active, .stat-counter:active { transform: translateY(2px); }
+
+  /* ---------- Banner ---------- */
+  .banner {
+    margin: 0 16px 10px;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: space-between;
+    line-height: 1.3;
+  }
+  .banner.demo { background: #fff3d6; border: 2px dashed var(--gold); color: #6b5000; }
+  .banner.error { background: #ffe1e1; border: 2px dashed #ff8b8b; color: #7a1f1f; }
+  .banner button.close { font-size: 1.1rem; opacity: 0.6; padding: 2px 6px; }
+  .banner span.msg { flex: 1; }
+
+  /* ---------- Main / views ---------- */
+  main { flex: 1; padding: 4px 16px 100px; }
+  .view { display: none; animation: fadeIn 0.25s ease; }
+  .view.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px);} to { opacity:1; transform:none; } }
+
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin: 6px 2px 12px;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- Garden grid ---------- */
+  .garden-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .plot {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: var(--radius);
+    background: linear-gradient(180deg, #a9723f, var(--soil));
+    box-shadow: var(--shadow), inset 0 -6px 10px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px;
+    transition: transform 0.12s ease;
+    overflow: hidden;
+  }
+  .plot:active { transform: scale(0.94); }
+  .plot.empty {
+    background: repeating-linear-gradient(45deg, #d8bf95, #d8bf95 8px, #cdb287 8px, #cdb287 16px);
+    color: #6b5238;
+  }
+  .plot.empty .plot-icon { font-size: 1.8rem; opacity: 0.8; }
+  .plot.empty .plot-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; }
+  .plot.planted { color: #fff; }
+  .plot .seed-badge {
+    position: absolute;
+    top: 6px; left: 6px;
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.25);
+    border-radius: 50%;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .plot .plot-icon { font-size: 2rem; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25)); }
+  .plot .plot-icon.pulse { animation: pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+  .plot.ready { background: linear-gradient(180deg, #ffcf6b, #ff9f40); }
+  .plot .plot-progress {
+    width: 78%;
+    height: 6px;
+    background: rgba(255,255,255,0.3);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 2px;
+  }
+  .plot .plot-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--green), var(--gold));
+    transition: width 0.6s linear;
+  }
+  .plot .plot-gardener {
+    font-size: 0.65rem;
+    font-weight: 800;
+    opacity: 0.9;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .plot .plot-hint {
+    font-size: 0.6rem;
+    font-weight: 700;
+    opacity: 0.8;
+  }
+
+  /* ---------- Codex grid ---------- */
+  .codex-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .codex-card {
+    aspect-ratio: 1/1;
+    border-radius: 18px;
+    background: var(--card);
+    border: 2px solid var(--card-border);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 6px;
+  }
+  .codex-card:active { transform: scale(0.95); }
+  .codex-card.locked { opacity: 0.55; }
+  .codex-card.locked .codex-emoji { font-size: 1.6rem; filter: grayscale(1); }
+  .codex-card .codex-emoji { font-size: 2rem; }
+  .codex-card .codex-name { font-size: 0.68rem; font-weight: 800; text-align: center; line-height: 1.15; }
+  .codex-card .codex-count { font-size: 0.62rem; font-weight: 700; color: var(--ink-soft); }
+  .codex-card.rarity-common { border-color: #bfe8c9; }
+  .codex-card.rarity-uncommon { border-color: #d6c3ff; box-shadow: var(--shadow), 0 0 0 3px rgba(138,79,255,0.12); }
+  .codex-card.rarity-rare { border-color: #ffd6a3; box-shadow: var(--shadow), 0 0 0 3px rgba(255,159,64,0.18); }
+  .codex-card.rarity-legendary {
+    border: 2px solid transparent;
+    background:
+      linear-gradient(var(--card), var(--card)) padding-box,
+      linear-gradient(120deg, var(--pink), var(--gold), var(--teal), var(--purple)) border-box;
+    animation: legendary-glow 3s ease-in-out infinite;
+  }
+  @keyframes legendary-glow {
+    0%,100% { box-shadow: var(--shadow), 0 0 10px rgba(255,159,64,0.35); }
+    50% { box-shadow: var(--shadow), 0 0 22px rgba(255,93,143,0.55); }
+  }
+
+  /* ---------- Feed ---------- */
+  .feed-list { display: flex; flex-direction: column; gap: 10px; }
+  .feed-item, .feed-empty {
+    background: var(--card);
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow);
+    animation: fadeIn 0.3s ease;
+  }
+  .feed-empty { justify-content: center; color: var(--ink-soft); font-weight: 700; }
+  .feed-emoji { font-size: 1.4rem; flex-shrink: 0; }
+  .feed-text { flex: 1; font-weight: 700; font-size: 0.9rem; line-height: 1.3; }
+  .feed-time { font-size: 0.7rem; color: var(--ink-soft); font-weight: 700; white-space: nowrap; }
+
+  /* ---------- Tab bar ---------- */
+  .tabbar {
+    position: fixed;
+    left: 0; right: 0; bottom: 0;
+    max-width: 720px;
+    margin: 0 auto;
+    display: flex;
+    background: var(--card);
+    border-top: 2px solid var(--card-border);
+    padding: 6px 10px max(6px, env(safe-area-inset-bottom));
+    box-shadow: 0 -6px 20px rgba(43,29,22,0.10);
+    z-index: 20;
+  }
+  .tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 8px 0;
+    border-radius: 14px;
+    font-size: 1.4rem;
+    color: var(--ink-soft);
+    font-weight: 800;
+  }
+  .tab span { font-size: 0.68rem; }
+  .tab.active { color: var(--pink); background: #fff0f4; }
+  .tab:active { transform: scale(0.95); }
+
+  /* ---------- Sheets & modals ---------- */
+  .backdrop {
+    position: fixed; inset: 0;
+    background: rgba(43,29,22,0.45);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    z-index: 50;
+    animation: fadeIn 0.2s ease;
+  }
+  .backdrop.center { align-items: center; padding: 20px; }
+  .sheet {
+    width: 100%;
+    max-width: 720px;
+    background: var(--card);
+    border-radius: 26px 26px 0 0;
+    padding: 20px 20px max(20px, env(safe-area-inset-bottom));
+    max-height: 82vh;
+    overflow-y: auto;
+    animation: slideUp 0.25s ease;
+  }
+  @keyframes slideUp { from { transform: translateY(30px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+  .sheet h2 { margin: 0 0 4px; font-size: 1.25rem; }
+  .sheet p.sub { margin: 0 0 16px; color: var(--ink-soft); font-weight: 700; font-size: 0.85rem; }
+
+  .seed-options { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .seed-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: left;
+    background: #fff;
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    padding: 12px;
+  }
+  .seed-option:active { transform: scale(0.96); }
+  .seed-option .seed-emoji { font-size: 1.8rem; }
+  .seed-option .seed-name { font-weight: 800; font-size: 0.9rem; display: block; }
+  .seed-option .seed-desc { font-weight: 600; font-size: 0.72rem; color: var(--ink-soft); display: block; margin-top: 2px; }
+
+  .btn-cancel {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 16px;
+    padding: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+
+  /* profile picker */
+  .profile-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .profile-option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    border: 2px solid var(--card-border);
+    border-radius: 16px;
+    padding: 12px 4px;
+  }
+  .profile-option:active { transform: scale(0.94); background: #fff0f4; }
+  .profile-option .p-emoji { font-size: 1.7rem; }
+  .profile-option .p-name { font-size: 0.72rem; font-weight: 800; }
+  .link-btn { display: block; text-align: center; margin-top: 14px; font-weight: 800; color: var(--teal); text-decoration: underline; }
+  .custom-name-form { display: none; margin-top: 14px; }
+  .custom-name-form.show { display: block; }
+  .custom-name-form input {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 2px solid var(--card-border);
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .custom-name-form .profile-grid { margin-bottom: 10px; }
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    background: var(--pink);
+    color: #fff;
+    font-weight: 800;
+    font-size: 1rem;
+    box-shadow: 0 4px 0 #d13f6f;
+  }
+  .btn-primary:active { transform: translateY(3px); box-shadow: none; }
+
+  /* reveal modal */
+  .reveal-card {
+    position: relative;
+    background: var(--card);
+    border-radius: 26px;
+    padding: 28px 24px 24px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    overflow: hidden;
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .reveal-ribbon {
+    display: inline-block;
+    background: var(--gold);
+    color: #6b5000;
+    font-weight: 800;
+    font-size: 0.72rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .reveal-emoji { font-size: 4.5rem; margin: 6px 0; filter: drop-shadow(0 6px 8px rgba(0,0,0,0.2)); }
+  .reveal-name { font-size: 1.3rem; font-weight: 800; margin: 4px 0 2px; }
+  .reveal-rarity { font-size: 0.78rem; font-weight: 800; color: var(--ink-soft); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .reveal-flavor { font-size: 0.85rem; color: var(--ink-soft); font-weight: 600; line-height: 1.4; margin-bottom: 18px; }
+  .confetti-layer { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+  .confetti-piece {
+    position: absolute;
+    top: -10px;
+    width: 8px; height: 14px;
+    border-radius: 2px;
+    animation: confetti-fall linear forwards;
+  }
+  @keyframes confetti-fall {
+    to { transform: translateY(420px) rotate(540deg); opacity: 0; }
+  }
+
+  /* codex detail */
+  .detail-card {
+    background: var(--card);
+    border-radius: 24px;
+    padding: 24px;
+    max-width: 320px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+    animation: popIn 0.3s cubic-bezier(.34,1.56,.64,1);
+  }
+  .detail-card .reveal-emoji { font-size: 3.6rem; }
+  .detail-meta { font-size: 0.78rem; color: var(--ink-soft); font-weight: 700; margin-top: 4px; }
+
+  /* toasts */
+  #toastContainer {
+    position: fixed;
+    top: max(14px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(90vw, 420px);
+    align-items: center;
+  }
+  .toast {
+    background: var(--ink);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    animation: toastIn 0.25s ease;
+    text-align: center;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  .toast.leaving { animation: toastOut 0.25s ease forwards; }
+  @keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
+
+  /* splash */
+  #splash {
+    position: fixed; inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    z-index: 100;
+    transition: opacity 0.3s ease;
+  }
+  #splash .splash-emoji { font-size: 3.2rem; animation: pulse 1.4s ease-in-out infinite; }
+  #splash .splash-text { font-weight: 800; color: var(--ink-soft); }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-emoji">🌵✨</div>
+  <div class="splash-text">Waking up the garden…</div>
+</div>
+
+<div id="app">
+  <header class="topbar">
+    <div class="brand">🌵 Alebrijes Garden</div>
+    <div class="stat-counter" title="Total alebrijes grown by everyone">🌱 <span id="counterValue">0</span></div>
+    <button class="avatar-chip" id="avatarChip" aria-label="Your gardener profile">
+      <span class="av-emoji" id="avatarChipEmoji">🦊</span>
+      <span id="avatarChipName">Gardener</span>
+    </button>
+  </header>
+
+  <div class="banner demo" id="bannerDemo" hidden>
+    <span class="msg">🌐 Demo mode — you're playing solo on this device. Add your Firebase details in <code>index.html</code> to sync live across every tablet. See README.</span>
+    <button class="close" id="bannerDemoClose" aria-label="Dismiss">✕</button>
+  </div>
+  <div class="banner error" id="bannerError" hidden>
+    <span class="msg">⚠️ Couldn't connect to the shared garden. Playing solo for now — check your Firebase setup in README.</span>
+    <button class="close" id="bannerErrorClose" aria-label="Dismiss">✕</button>
+  </div>
+
+  <main>
+    <section id="view-garden" class="view active">
+      <div class="section-title">The Garden</div>
+      <div class="garden-grid" id="gardenGrid"></div>
+    </section>
+
+    <section id="view-codex" class="view">
+      <div class="section-title">Codex — <span id="codexProgress">0 / 0</span> discovered</div>
+      <div class="codex-grid" id="codexGrid"></div>
+    </section>
+
+    <section id="view-feed" class="view">
+      <div class="section-title">Discovery Feed</div>
+      <ul class="feed-list" id="feedList"></ul>
+    </section>
+  </main>
+
+  <nav class="tabbar" role="tablist">
+    <button class="tab active" data-view="garden" role="tab" aria-selected="true">🌻<span>Garden</span></button>
+    <button class="tab" data-view="codex" role="tab" aria-selected="false">📖<span>Codex</span></button>
+    <button class="tab" data-view="feed" role="tab" aria-selected="false">📰<span>Feed</span></button>
+  </nav>
+</div>
+
+<!-- Seed picker sheet -->
+<div class="backdrop" id="seedBackdrop" hidden>
+  <div class="sheet">
+    <h2>What will you plant? 🌱</h2>
+    <p class="sub">Each seed grows a different kind of alebrije.</p>
+    <div class="seed-options" id="seedOptions"></div>
+    <button class="btn-cancel" id="seedCancel">Never mind</button>
+  </div>
+</div>
+
+<!-- Bloom reveal modal -->
+<div class="backdrop center" id="revealBackdrop" hidden>
+  <div class="reveal-card" id="revealCard">
+    <div class="confetti-layer" id="confettiLayer"></div>
+    <div class="reveal-ribbon" id="revealRibbon" hidden>✨ New discovery!</div>
+    <div class="reveal-emoji" id="revealEmoji">🐉</div>
+    <div class="reveal-name" id="revealName">???</div>
+    <div class="reveal-rarity" id="revealRarity">Common</div>
+    <div class="reveal-flavor" id="revealFlavor">…</div>
+    <button class="btn-primary" id="revealClose">Nice! 🎉</button>
+  </div>
+</div>
+
+<!-- Codex detail modal -->
+<div class="backdrop center" id="detailBackdrop" hidden>
+  <div class="detail-card" id="detailCard">
+    <div class="reveal-emoji" id="detailEmoji">🐉</div>
+    <div class="reveal-name" id="detailName">???</div>
+    <div class="reveal-rarity" id="detailRarity">Common</div>
+    <div class="reveal-flavor" id="detailFlavor">…</div>
+    <div class="detail-meta" id="detailMeta"></div>
+    <button class="btn-primary" id="detailClose" style="margin-top:16px;">Close</button>
+  </div>
+</div>
+
+<!-- Profile picker -->
+<div class="backdrop center" id="profileBackdrop" hidden>
+  <div class="sheet" style="border-radius:26px; max-height:88vh;">
+    <h2>Who's tending the garden? 🌼</h2>
+    <p class="sub">Tap one to jump in — you can change it anytime.</p>
+    <div class="profile-grid" id="profileGrid"></div>
+    <button class="link-btn" id="useCustomName">Use a different name</button>
+    <div class="custom-name-form" id="customNameForm">
+      <input type="text" id="customNameInput" placeholder="Type a name" maxlength="16">
+      <div class="profile-grid" id="customAvatarGrid"></div>
+      <button class="btn-primary" id="customNameSave">Save & play</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<!--
+  Cloudflare Web Analytics (optional, privacy-friendly, free).
+  1. Create a free account at https://dash.cloudflare.com
+  2. Web Analytics -> Add a site -> paste your GitHub Pages hostname
+  3. Copy the token from the snippet Cloudflare gives you and uncomment the line below.
+-->
+<!-- <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"PASTE_YOUR_TOKEN_HERE"}'></script> -->
+
+<script type="module">
+/* =========================================================================
+   Alebrijes Garden — single-file game + optional Firebase realtime backend.
+   See README.md for the full setup guide (GitHub Pages / Firebase / Analytics).
+   ========================================================================= */
+
+// ---------------------------------------------------------------------
+// CONFIG — the only section you should need to edit to go live.
+// ---------------------------------------------------------------------
+const CONFIG = {
+  // Paste the config object from Firebase Console -> Project settings -> Your apps -> Web app.
+  // Leave apiKey empty to run in offline "demo" mode (single device, no setup needed).
+  firebase: {
+    apiKey: "",
+    authDomain: "",
+    databaseURL: "",
+    projectId: "",
+    appId: ""
+  },
+  // Change this to a random, hard-to-guess string before you go live (see README, Phase 2).
+  dataRoot: "CHANGE_ME_before_going_live",
+
+  plotCount: 9,               // size of the shared garden grid (3x3)
+  growDurationMs: 5 * 60 * 1000,   // base time for a seed to fully bloom
+  minGrowDurationMs: 30 * 1000,    // floor after water boosts
+  waterBoostMs: 45 * 1000,    // time removed per watering
+  maxWaters: 2,                // max waterings per plant
+  feedLimit: 40                // how many recent discoveries to keep visible
+};
+
+const LOCAL_KEY = "alebrijes-garden-state-v1";
+const PROFILE_KEY = "alebrijes-profile-v1";
+const MILESTONES_KEY = "alebrijes-milestones-v1";
+const MILESTONES = [1, 10, 25, 50, 100, 250, 500, 1000];
+
+// ---------------------------------------------------------------------
+// Content data — seeds & alebrije species.
+// ---------------------------------------------------------------------
+const SEEDS = [
+  { id: "sun",  name: "Sun Seed",  emoji: "☀️", desc: "Warm & balanced odds.",           growMultiplier: 1.0,  weights: { common: 65, uncommon: 25, rare: 9,  legendary: 1 } },
+  { id: "moon", name: "Moon Seed", emoji: "🌙", desc: "Mysterious night creatures.",      growMultiplier: 1.05, weights: { common: 40, uncommon: 40, rare: 17, legendary: 3 } },
+  { id: "star", name: "Star Seed", emoji: "⭐", desc: "Slow, but best rare odds.",        growMultiplier: 1.25, weights: { common: 20, uncommon: 35, rare: 35, legendary: 10 } },
+  { id: "rain", name: "Rain Seed", emoji: "💧", desc: "Grows fastest of all.",            growMultiplier: 0.75, weights: { common: 75, uncommon: 20, rare: 5,  legendary: 0 } }
+];
+
+const SPECIES = [
+  { id: "sol-conejo",     name: "Sol Conejo",           emoji: "🐇", rarity: "common",    flavor: "A rabbit woven from morning sunlight. Always the first one awake." },
+  { id: "rio-pez",        name: "Río Pez",              emoji: "🐟", rarity: "common",    flavor: "Swims through air as easily as water. Leaves tiny rainbows behind." },
+  { id: "nube-oveja",     name: "Nube Oveja",           emoji: "🐑", rarity: "common",    flavor: "Soft as a cloud. Hums quietly when it's about to rain." },
+  { id: "maiz-raton",     name: "Maíz Ratón",           emoji: "🐭", rarity: "common",    flavor: "Grew from a forgotten kernel of corn. Very fond of sharing snacks." },
+  { id: "cactus-erizo",   name: "Cactus Erizo",         emoji: "🦔", rarity: "common",    flavor: "Prickly on the outside, surprisingly ticklish on the inside." },
+  { id: "flor-abeja",     name: "Flor Abeja",           emoji: "🐝", rarity: "common",    flavor: "Pollinates flowers just by humming its favorite tune." },
+  { id: "piedra-tortuga", name: "Piedra Tortuga",       emoji: "🐢", rarity: "common",    flavor: "Its shell is an old riverbed stone. It remembers every season." },
+  { id: "viento-paloma",  name: "Viento Paloma",        emoji: "🕊️", rarity: "common",   flavor: "Carries messages between gardens on the wind." },
+  { id: "jaguar-lunar",   name: "Jaguar Lunar",         emoji: "🐆", rarity: "uncommon",  flavor: "Only fully visible under a full moon. Silent, curious, kind." },
+  { id: "serpiente-arco", name: "Serpiente Arcoíris",   emoji: "🐍", rarity: "uncommon",  flavor: "Leaves a trail of color wherever it slithers." },
+  { id: "zorro-estelar",  name: "Zorro Estelar",        emoji: "🦊", rarity: "uncommon",  flavor: "Its fur is stitched from tiny stars. Loves a good hiding spot." },
+  { id: "buho-sabio",     name: "Búho Sabio",           emoji: "🦉", rarity: "uncommon",  flavor: "Knows the name of every plant in the garden by heart." },
+  { id: "lobo-sombra",    name: "Lobo Sombra",          emoji: "🐺", rarity: "uncommon",  flavor: "Appears at dusk to guard the garden while everyone sleeps." },
+  { id: "mariposa-cris",  name: "Mariposa Cristal",     emoji: "🦋", rarity: "uncommon",  flavor: "Wings like stained glass — it chimes softly when it flies." },
+  { id: "dragon-copal",   name: "Dragón Copal",         emoji: "🐉", rarity: "rare",      flavor: "Smells like incense and old stories. Breathes warm, sweet smoke." },
+  { id: "quetzal-dorado", name: "Quetzal Dorado",       emoji: "🦜", rarity: "rare",      flavor: "Feathers made of thin gold leaf. Sings only for kind gardeners." },
+  { id: "pavo-cosmico",   name: "Pavo Real Cósmico",    emoji: "🦚", rarity: "rare",      flavor: "Its tail shows a tiny map of the night sky." },
+  { id: "solzilla",       name: "Solzilla, Guardián del Jardín", emoji: "🦁", rarity: "legendary", flavor: "Born only once in a great while, from the garden's happiest day. Protects every seed planted after it." }
+];
+const RARITY_LABEL = { common: "Common", uncommon: "Uncommon", rare: "Rare", legendary: "✨ Legendary ✨" };
+const STAGE_ICON = { seed: "🌱", sprout: "🌿", bud: "🌷", blooming: "🌸", ready: "✨" };
+const PROFILE_OPTIONS = [
+  { name: "Sunny", avatar: "🦊" }, { name: "Luna", avatar: "🐰" },
+  { name: "Comet", avatar: "🦋" }, { name: "Rosa", avatar: "🐢" },
+  { name: "Nova", avatar: "🦉" },  { name: "Bella", avatar: "🐬" },
+  { name: "Kiko", avatar: "🦄" },  { name: "Max", avatar: "🐸" }
+];
+
+// ---------------------------------------------------------------------
+// Small helpers
+// ---------------------------------------------------------------------
+const $ = (sel) => document.querySelector(sel);
+const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+function esc(str) {
+  return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+function weightedPick(weights) {
+  const entries = Object.entries(weights).filter(([, w]) => w > 0);
+  const total = entries.reduce((sum, [, w]) => sum + w, 0);
+  let r = Math.random() * total;
+  for (const [key, w] of entries) {
+    if (r < w) return key;
+    r -= w;
+  }
+  return entries[entries.length - 1][0];
+}
+
+function pickSpecies(seedId) {
+  const seed = SEEDS.find((s) => s.id === seedId) || SEEDS[0];
+  const rarity = weightedPick(seed.weights);
+  const pool = SPECIES.filter((sp) => sp.rarity === rarity);
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function getPlotProgress(plot, now) {
+  const seed = SEEDS.find((s) => s.id === plot.seed) || SEEDS[0];
+  const base = CONFIG.growDurationMs * seed.growMultiplier;
+  const waterReduction = (plot.waters || 0) * CONFIG.waterBoostMs;
+  const effective = Math.max(base - waterReduction, CONFIG.minGrowDurationMs);
+  const plantedAt = typeof plot.plantedAt === "number" ? plot.plantedAt : now;
+  const elapsed = now - plantedAt;
+  const ratio = Math.min(Math.max(elapsed / effective, 0), 1);
+  return { ratio, seed };
+}
+
+function stageFromRatio(ratio) {
+  if (ratio >= 1) return "ready";
+  if (ratio >= 0.8) return "blooming";
+  if (ratio >= 0.45) return "bud";
+  if (ratio >= 0.15) return "sprout";
+  return "seed";
+}
+
+function relTime(ts) {
+  const diff = Math.max(0, Date.now() - ts);
+  const s = Math.floor(diff / 1000);
+  if (s < 45) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  return `${d}d ago`;
+}
+
+// ---------------------------------------------------------------------
+// Store: LocalStore (offline demo) — same interface as FirebaseStore.
+// ---------------------------------------------------------------------
+class LocalStore {
+  constructor(key) {
+    this.key = key;
+    this.uid = "local-" + Math.random().toString(36).slice(2, 8);
+    this._cbs = {};
+  }
+  async init() {
+    if (!localStorage.getItem(this.key)) {
+      localStorage.setItem(this.key, JSON.stringify({ plots: {}, codex: {}, feed: [], counter: 0 }));
+    }
+    window.addEventListener("storage", (e) => { if (e.key === this.key) this._notify(); });
+    return { mode: "local", gardenerId: this.uid };
+  }
+  _read() {
+    try { return JSON.parse(localStorage.getItem(this.key)) || { plots: {}, codex: {}, feed: [], counter: 0 }; }
+    catch { return { plots: {}, codex: {}, feed: [], counter: 0 }; }
+  }
+  _write(state) { localStorage.setItem(this.key, JSON.stringify(state)); this._notify(); }
+  _notify() {
+    const s = this._read();
+    this._cbs.plots && this._cbs.plots(s.plots || {});
+    this._cbs.codex && this._cbs.codex(s.codex || {});
+    this._cbs.feed && this._cbs.feed([...(s.feed || [])].sort((a, b) => b.ts - a.ts));
+    this._cbs.counter && this._cbs.counter(s.counter || 0);
+  }
+  subscribePlots(cb) { this._cbs.plots = cb; cb(this._read().plots || {}); }
+  subscribeCodex(cb) { this._cbs.codex = cb; cb(this._read().codex || {}); }
+  subscribeFeed(cb) { this._cbs.feed = cb; cb([...(this._read().feed || [])].sort((a, b) => b.ts - a.ts)); }
+  subscribeCounter(cb) { this._cbs.counter = cb; cb(this._read().counter || 0); }
+
+  async plantSeed(plotId, seedId, gardenerName) {
+    const s = this._read();
+    if (s.plots[plotId]) return false;
+    s.plots[plotId] = { seed: seedId, plantedAt: Date.now(), plantedBy: gardenerName, waters: 0 };
+    this._write(s);
+    return true;
+  }
+  async waterPlot(plotId) {
+    const s = this._read();
+    const p = s.plots[plotId];
+    if (!p || (p.waters || 0) >= CONFIG.maxWaters) return false;
+    p.waters = (p.waters || 0) + 1;
+    this._write(s);
+    return true;
+  }
+  async harvestPlot(plotId, gardenerName) {
+    const s = this._read();
+    const p = s.plots[plotId];
+    if (!p) return null;
+    const species = pickSpecies(p.seed);
+    delete s.plots[plotId];
+    const entry = s.codex[species.id];
+    const isFirst = !entry;
+    if (entry) entry.count = (entry.count || 0) + 1;
+    else s.codex[species.id] = { firstBy: gardenerName, firstAt: Date.now(), count: 1 };
+    const text = isFirst
+      ? `✨ NEW! ${gardenerName} discovered the ${species.name} for the first time!`
+      : `${gardenerName} grew a ${species.name}!`;
+    s.feed = s.feed || [];
+    s.feed.push({ id: "f" + Date.now() + Math.random().toString(36).slice(2, 6), text, emoji: species.emoji, ts: Date.now() });
+    if (s.feed.length > CONFIG.feedLimit) s.feed = s.feed.slice(-CONFIG.feedLimit);
+    s.counter = (s.counter || 0) + 1;
+    this._write(s);
+    return { species, isFirst };
+  }
+}
+
+// ---------------------------------------------------------------------
+// Store: FirebaseStore (Realtime Database, real cross-device sync).
+// Firebase modules are only fetched when a real config is present.
+// ---------------------------------------------------------------------
+class FirebaseStore {
+  constructor(config, dataRoot) { this.config = config; this.dataRoot = dataRoot; }
+
+  async init() {
+    const SDK = "https://www.gstatic.com/firebasejs/10.12.2/";
+    const [appMod, authMod, dbMod] = await Promise.all([
+      import(/* webpackIgnore: true */ SDK + "firebase-app.js"),
+      import(/* webpackIgnore: true */ SDK + "firebase-auth.js"),
+      import(/* webpackIgnore: true */ SDK + "firebase-database.js")
+    ]);
+    this._authMod = authMod;
+    this._dbMod = dbMod;
+    this.app = appMod.initializeApp(this.config);
+    this.auth = authMod.getAuth(this.app);
+    this.db = dbMod.getDatabase(this.app);
+
+    this.uid = await new Promise((resolve, reject) => {
+      const unsub = authMod.onAuthStateChanged(this.auth, (user) => {
+        if (user) { unsub(); resolve(user.uid); }
+      }, reject);
+      authMod.signInAnonymously(this.auth).catch(reject);
+    });
+
+    return { mode: "firebase", gardenerId: this.uid };
+  }
+
+  _ref(path) { return this._dbMod.ref(this.db, `${this.dataRoot}/${path}`); }
+
+  subscribePlots(cb) { this._dbMod.onValue(this._ref("plots"), (snap) => cb(snap.val() || {})); }
+  subscribeCodex(cb) { this._dbMod.onValue(this._ref("codex"), (snap) => cb(snap.val() || {})); }
+  subscribeCounter(cb) { this._dbMod.onValue(this._ref("counter"), (snap) => cb(snap.val() || 0)); }
+  subscribeFeed(cb) {
+    const q = this._dbMod.query(this._ref("feed"), this._dbMod.limitToLast(CONFIG.feedLimit));
+    this._dbMod.onValue(q, (snap) => {
+      const val = snap.val() || {};
+      const arr = Object.entries(val).map(([id, v]) => ({ id, ...v })).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      cb(arr);
+    });
+  }
+
+  async plantSeed(plotId, seedId, gardenerName) {
+    const result = await this._dbMod.runTransaction(this._ref(`plots/${plotId}`), (cur) => {
+      if (cur) return undefined; // abort: already occupied
+      return { seed: seedId, plantedAt: Date.now(), plantedBy: gardenerName, waters: 0 };
+    });
+    return result.committed;
+  }
+
+  async waterPlot(plotId) {
+    const result = await this._dbMod.runTransaction(this._ref(`plots/${plotId}/waters`), (cur) => {
+      if (cur === null || cur === undefined) return undefined;
+      if (cur >= CONFIG.maxWaters) return undefined;
+      return cur + 1;
+    });
+    return result.committed;
+  }
+
+  async harvestPlot(plotId, gardenerName) {
+    const claim = await this._dbMod.runTransaction(this._ref(`plots/${plotId}`), (plot) => {
+      if (!plot || plot.harvesting) return undefined;
+      return { ...plot, harvesting: true };
+    });
+    if (!claim.committed) return null;
+    const plot = claim.snapshot.val();
+    if (!plot) return null;
+
+    const species = pickSpecies(plot.seed);
+    await this._dbMod.remove(this._ref(`plots/${plotId}`));
+
+    const codexResult = await this._dbMod.runTransaction(this._ref(`codex/${species.id}`), (cur) => {
+      if (cur) return { ...cur, count: (cur.count || 0) + 1 };
+      return { firstBy: gardenerName, firstAt: Date.now(), count: 1 };
+    });
+    const isFirst = codexResult.committed && codexResult.snapshot.val()?.count === 1;
+
+    const text = isFirst
+      ? `✨ NEW! ${gardenerName} discovered the ${species.name} for the first time!`
+      : `${gardenerName} grew a ${species.name}!`;
+    await this._dbMod.push(this._ref("feed"), { text, emoji: species.emoji, ts: Date.now() });
+    await this._dbMod.runTransaction(this._ref("counter"), (cur) => (cur || 0) + 1);
+
+    return { species, isFirst };
+  }
+}
+
+// ---------------------------------------------------------------------
+// App state & bootstrap
+// ---------------------------------------------------------------------
+let store = null;
+let currentView = "garden";
+let profile = null;
+const state = { plots: {}, codex: {}, feed: [], counter: 0 };
+let pendingPlotId = null;
+
+function isFirebaseConfigured() {
+  const f = CONFIG.firebase;
+  return !!(f && f.apiKey && f.databaseURL && CONFIG.dataRoot && !CONFIG.dataRoot.startsWith("CHANGE_ME"));
+}
+
+async function initStore() {
+  if (isFirebaseConfigured()) {
+    try {
+      store = new FirebaseStore(CONFIG.firebase, CONFIG.dataRoot);
+      return await store.init();
+    } catch (err) {
+      console.error("Firebase init failed — falling back to offline demo mode.", err);
+      store = new LocalStore(LOCAL_KEY);
+      const res = await store.init();
+      showBanner("error");
+      return res;
+    }
+  }
+  store = new LocalStore(LOCAL_KEY);
+  const res = await store.init();
+  showBanner("demo");
+  return res;
+}
+
+function wireStoreSubscriptions() {
+  store.subscribePlots((plots) => { state.plots = plots || {}; if (currentView === "garden") renderGarden(); });
+  store.subscribeCodex((codex) => { state.codex = codex || {}; if (currentView === "codex") renderCodex(); updateCodexProgress(); });
+  store.subscribeFeed((feed) => { state.feed = feed || []; if (currentView === "feed") renderFeed(); });
+  store.subscribeCounter((count) => { state.counter = count || 0; $("#counterValue").textContent = state.counter; checkMilestone(state.counter); });
+}
+
+// ---------------------------------------------------------------------
+// Rendering: Garden
+// ---------------------------------------------------------------------
+function renderGarden() {
+  const now = Date.now();
+  let html = "";
+  for (let i = 0; i < CONFIG.plotCount; i++) {
+    const plotId = String(i);
+    const plot = state.plots[plotId];
+    html += renderPlotTile(plotId, plot, now);
+  }
+  $("#gardenGrid").innerHTML = html;
+}
+
+function renderPlotTile(plotId, plot, now) {
+  if (!plot) {
+    return `<button class="plot empty" data-plot="${plotId}" aria-label="Empty plot, tap to plant a seed">
+      <span class="plot-icon">➕</span>
+      <span class="plot-label">Plant</span>
+    </button>`;
+  }
+  const { ratio, seed } = getPlotProgress(plot, now);
+  const stage = stageFromRatio(ratio);
+  const icon = STAGE_ICON[stage];
+  const pct = Math.round(ratio * 100);
+  const readyClass = stage === "ready" ? "ready" : "";
+  const pulseClass = stage === "blooming" || stage === "ready" ? "pulse" : "";
+  const canWater = stage !== "ready" && (plot.waters || 0) < CONFIG.maxWaters;
+  const hint = stage === "ready" ? "tap to reveal!" : canWater ? "💧 tap to water" : "growing…";
+  return `<button class="plot planted ${readyClass}" data-plot="${plotId}" aria-label="${esc(plot.plantedBy || "")}'s plant, ${stage}">
+    <span class="seed-badge">${seed.emoji}</span>
+    <span class="plot-icon ${pulseClass}">${icon}</span>
+    <span class="plot-progress"><span class="plot-progress-fill" style="width:${pct}%"></span></span>
+    <span class="plot-gardener">${esc(plot.plantedBy || "")}</span>
+    <span class="plot-hint">${hint}</span>
+  </button>`;
+}
+
+$("#gardenGrid").addEventListener("click", async (e) => {
+  const btn = e.target.closest(".plot");
+  if (!btn || btn.disabled) return;
+  const plotId = btn.dataset.plot;
+  const plot = state.plots[plotId];
+
+  if (!plot) { openSeedSheet(plotId); return; }
+
+  const { ratio } = getPlotProgress(plot, Date.now());
+  const stage = stageFromRatio(ratio);
+
+  if (stage === "ready") {
+    btn.disabled = true;
+    const result = await store.harvestPlot(plotId, profile.name);
+    if (result) showReveal(result.species, result.isFirst);
+    else toast("That one already found its way to the codex! 🌟");
+  } else if ((plot.waters || 0) < CONFIG.maxWaters) {
+    store.waterPlot(plotId);
+    toast("💧 Watered!");
+  } else {
+    toast("This one just needs a little more time to grow 🌱");
+  }
+});
+
+// ---------------------------------------------------------------------
+// Seed picker sheet
+// ---------------------------------------------------------------------
+function openSeedSheet(plotId) {
+  pendingPlotId = plotId;
+  $("#seedOptions").innerHTML = SEEDS.map((s) => `
+    <button class="seed-option" data-seed="${s.id}">
+      <span class="seed-emoji">${s.emoji}</span>
+      <span>
+        <span class="seed-name">${esc(s.name)}</span>
+        <span class="seed-desc">${esc(s.desc)}</span>
+      </span>
+    </button>`).join("");
+  $("#seedBackdrop").hidden = false;
+}
+function closeSeedSheet() { $("#seedBackdrop").hidden = true; pendingPlotId = null; }
+
+$("#seedOptions").addEventListener("click", async (e) => {
+  const btn = e.target.closest(".seed-option");
+  if (!btn || !pendingPlotId) return;
+  const seedId = btn.dataset.seed;
+  const plotId = pendingPlotId;
+  closeSeedSheet();
+  const committed = await store.plantSeed(plotId, seedId, profile.name);
+  if (!committed) toast("Someone just planted there! Try another spot 🌼");
+});
+$("#seedCancel").addEventListener("click", closeSeedSheet);
+$("#seedBackdrop").addEventListener("click", (e) => { if (e.target.id === "seedBackdrop") closeSeedSheet(); });
+
+// ---------------------------------------------------------------------
+// Bloom reveal modal
+// ---------------------------------------------------------------------
+function showReveal(species, isFirst) {
+  $("#revealRibbon").hidden = !isFirst;
+  $("#revealEmoji").textContent = species.emoji;
+  $("#revealName").textContent = species.name;
+  $("#revealRarity").textContent = RARITY_LABEL[species.rarity];
+  $("#revealFlavor").textContent = species.flavor;
+  spawnConfetti();
+  $("#revealBackdrop").hidden = false;
+}
+function spawnConfetti() {
+  const colors = ["#ff5d8f", "#ffd23f", "#12b3a8", "#8a4fff", "#ff9f40"];
+  const layer = $("#confettiLayer");
+  layer.innerHTML = Array.from({ length: 22 }, () => {
+    const left = Math.random() * 100;
+    const delay = Math.random() * 0.3;
+    const duration = 1.1 + Math.random() * 0.6;
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    return `<span class="confetti-piece" style="left:${left}%; background:${color}; animation-delay:${delay}s; animation-duration:${duration}s;"></span>`;
+  }).join("");
+}
+$("#revealClose").addEventListener("click", () => {
+  $("#revealBackdrop").hidden = true;
+  $("#confettiLayer").innerHTML = "";
+});
+
+// ---------------------------------------------------------------------
+// Rendering: Codex
+// ---------------------------------------------------------------------
+function updateCodexProgress() {
+  const discovered = Object.keys(state.codex || {}).length;
+  $("#codexProgress").textContent = `${discovered} / ${SPECIES.length}`;
+}
+function renderCodex() {
+  $("#codexGrid").innerHTML = SPECIES.map((sp) => {
+    const entry = state.codex[sp.id];
+    if (!entry) {
+      return `<div class="codex-card locked"><span class="codex-emoji">❔</span><span class="codex-name">???</span></div>`;
+    }
+    return `<button class="codex-card unlocked rarity-${sp.rarity}" data-species="${sp.id}">
+      <span class="codex-emoji">${sp.emoji}</span>
+      <span class="codex-name">${esc(sp.name)}</span>
+      <span class="codex-count">×${entry.count}</span>
+    </button>`;
+  }).join("");
+}
+$("#codexGrid").addEventListener("click", (e) => {
+  const btn = e.target.closest(".codex-card.unlocked");
+  if (!btn) return;
+  const sp = SPECIES.find((s) => s.id === btn.dataset.species);
+  const entry = state.codex[sp.id];
+  $("#detailEmoji").textContent = sp.emoji;
+  $("#detailName").textContent = sp.name;
+  $("#detailRarity").textContent = RARITY_LABEL[sp.rarity];
+  $("#detailFlavor").textContent = sp.flavor;
+  $("#detailMeta").textContent = `First grown by ${entry.firstBy} • grown ${entry.count} time${entry.count === 1 ? "" : "s"}`;
+  $("#detailBackdrop").hidden = false;
+});
+$("#detailClose").addEventListener("click", () => { $("#detailBackdrop").hidden = true; });
+$("#detailBackdrop").addEventListener("click", (e) => { if (e.target.id === "detailBackdrop") $("#detailBackdrop").hidden = true; });
+
+// ---------------------------------------------------------------------
+// Rendering: Feed
+// ---------------------------------------------------------------------
+function renderFeed() {
+  if (!state.feed || !state.feed.length) {
+    $("#feedList").innerHTML = `<li class="feed-empty">No discoveries yet — go plant a seed! 🌱</li>`;
+    return;
+  }
+  $("#feedList").innerHTML = state.feed.map((f) => `
+    <li class="feed-item">
+      <span class="feed-emoji">${f.emoji || "🌼"}</span>
+      <span class="feed-text">${esc(f.text)}</span>
+      <span class="feed-time">${relTime(f.ts)}</span>
+    </li>`).join("");
+}
+
+// ---------------------------------------------------------------------
+// Tabs
+// ---------------------------------------------------------------------
+$$(".tab").forEach((btn) => btn.addEventListener("click", () => switchView(btn.dataset.view)));
+function switchView(view) {
+  currentView = view;
+  $$(".view").forEach((v) => v.classList.toggle("active", v.id === `view-${view}`));
+  $$(".tab").forEach((b) => {
+    const active = b.dataset.view === view;
+    b.classList.toggle("active", active);
+    b.setAttribute("aria-selected", String(active));
+  });
+  if (view === "garden") renderGarden();
+  if (view === "codex") renderCodex();
+  if (view === "feed") renderFeed();
+}
+
+// ---------------------------------------------------------------------
+// Growth ticker — recomputed purely from timestamps, no extra writes.
+// ---------------------------------------------------------------------
+setInterval(() => {
+  if (currentView === "garden" && Object.keys(state.plots || {}).length) renderGarden();
+}, 1000);
+
+// ---------------------------------------------------------------------
+// Milestones & toasts
+// ---------------------------------------------------------------------
+function checkMilestone(count) {
+  let celebrated = [];
+  try { celebrated = JSON.parse(localStorage.getItem(MILESTONES_KEY) || "[]"); } catch { celebrated = []; }
+  const hit = MILESTONES.find((m) => count === m && !celebrated.includes(m));
+  if (hit) {
+    celebrated.push(hit);
+    localStorage.setItem(MILESTONES_KEY, JSON.stringify(celebrated));
+    toast(`🎉 The garden has grown ${hit} alebrije${hit === 1 ? "" : "s"} together!`);
+  }
+}
+function toast(msg) {
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  $("#toastContainer").appendChild(el);
+  setTimeout(() => {
+    el.classList.add("leaving");
+    setTimeout(() => el.remove(), 250);
+  }, 3200);
+}
+
+// ---------------------------------------------------------------------
+// Banners
+// ---------------------------------------------------------------------
+function showBanner(kind) {
+  if (kind === "demo" && localStorage.getItem("alebrijes-banner-demo-dismissed")) return;
+  $(kind === "demo" ? "#bannerDemo" : "#bannerError").hidden = false;
+}
+$("#bannerDemoClose").addEventListener("click", () => {
+  $("#bannerDemo").hidden = true;
+  localStorage.setItem("alebrijes-banner-demo-dismissed", "1");
+});
+$("#bannerErrorClose").addEventListener("click", () => { $("#bannerError").hidden = true; });
+
+// ---------------------------------------------------------------------
+// Profile (gardener identity) — tap-only for kids, optional custom name.
+// ---------------------------------------------------------------------
+function loadProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)); } catch { return null; }
+}
+function saveProfile(p) {
+  profile = p;
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(p));
+  $("#avatarChipEmoji").textContent = p.avatar;
+  $("#avatarChipName").textContent = p.name;
+}
+function openProfilePicker() { $("#profileBackdrop").hidden = false; }
+function closeProfilePicker() {
+  $("#profileBackdrop").hidden = true;
+  $("#customNameForm").classList.remove("show");
+}
+
+function buildProfileGrid(container, onPick) {
+  container.innerHTML = PROFILE_OPTIONS.map((p, i) => `
+    <button class="profile-option" data-idx="${i}">
+      <span class="p-emoji">${p.avatar}</span>
+      <span class="p-name">${p.name}</span>
+    </button>`).join("");
+  container.addEventListener("click", (e) => {
+    const btn = e.target.closest(".profile-option");
+    if (!btn) return;
+    onPick(PROFILE_OPTIONS[Number(btn.dataset.idx)]);
+  });
+}
+
+buildProfileGrid($("#profileGrid"), (p) => { saveProfile(p); closeProfilePicker(); });
+buildProfileGrid($("#customAvatarGrid"), (p) => { $("#customAvatarGrid").dataset.selected = p.avatar; highlightSelectedAvatar(p.avatar); });
+
+function highlightSelectedAvatar(avatar) {
+  $$("#customAvatarGrid .profile-option").forEach((btn, i) => {
+    btn.style.background = PROFILE_OPTIONS[i].avatar === avatar ? "#fff0f4" : "";
+  });
+}
+
+$("#useCustomName").addEventListener("click", () => {
+  $("#customNameForm").classList.add("show");
+  $("#customAvatarGrid").dataset.selected = "🦊";
+  highlightSelectedAvatar("🦊");
+  $("#customNameInput").focus();
+});
+$("#customNameSave").addEventListener("click", () => {
+  const name = $("#customNameInput").value.trim().slice(0, 16);
+  const avatar = $("#customAvatarGrid").dataset.selected || "🦊";
+  if (!name) { toast("Type a name first! ✏️"); return; }
+  saveProfile({ name, avatar });
+  closeProfilePicker();
+});
+$("#avatarChip").addEventListener("click", openProfilePicker);
+
+// ---------------------------------------------------------------------
+// Boot sequence
+// ---------------------------------------------------------------------
+async function boot() {
+  // The profile picker is a blocking modal (its backdrop catches all clicks),
+  // so it's safe to open it immediately and let it sit behind the splash —
+  // splash hiding is gated only on the store being ready, never on profile choice.
+  const existing = loadProfile();
+  if (existing) saveProfile(existing);
+  else openProfilePicker();
+
+  await initStore();
+  wireStoreSubscriptions();
+  switchView("garden");
+
+  $("#splash").style.opacity = "0";
+  setTimeout(() => { $("#splash").hidden = true; }, 300);
+}
+boot();
+</script>
+</body>
+</html>

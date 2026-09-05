@@ -1,0 +1,845 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Dino Diet</title>
+<meta name="description" content="Feed each dinosaur only what it really eats and watch it grow up — a playful way to learn about carnivores, herbivores, and omnivores.">
+<meta name="theme-color" content="#2f6b3f">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A6%96%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #21301f;
+    --ink-soft: #4c5c48;
+    --card: #fffdf6;
+    --card-border: #dce8d4;
+    --shadow: 0 6px 0 rgba(33,48,31,0.14), 0 10px 24px rgba(33,48,31,0.12);
+    --amber: #ffb238;
+    --leaf: #4f9a56;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; overscroll-behavior: none; }
+  body {
+    margin: 0;
+    color: var(--ink);
+    font-family: 'Nunito', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+  h1, h2, .display { font-family: 'Baloo 2', 'Nunito', system-ui, sans-serif; }
+  button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+  [hidden] { display: none !important; }
+
+  #app {
+    height: 100vh;
+    height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ---------- Top bar ---------- */
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: max(10px, env(safe-area-inset-top)) 12px 8px;
+    background: var(--card);
+    border-bottom: 2px solid var(--card-border);
+    z-index: 10;
+  }
+  .icon-btn {
+    width: 40px; height: 40px;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+    background: #fff;
+    border: 2px solid var(--card-border);
+    border-radius: 50%;
+    box-shadow: var(--shadow);
+  }
+  .icon-btn:active { transform: translateY(2px); box-shadow: none; }
+  .growth-wrap { flex: 1; min-width: 0; }
+  .growth-label {
+    font-weight: 800;
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .growth-label .stage { color: var(--ink-soft); font-weight: 700; }
+  .growth-bar {
+    height: 12px;
+    background: #eef3ea;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 2px solid var(--card-border);
+  }
+  .growth-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--leaf), var(--amber));
+    width: 0%;
+    transition: width 0.35s ease;
+  }
+
+  /* ---------- Species tabs ---------- */
+  .species-tabs {
+    display: flex;
+    gap: 8px;
+    padding: 8px 12px;
+    overflow-x: auto;
+    background: var(--card);
+    border-bottom: 2px solid var(--card-border);
+    z-index: 10;
+  }
+  .species-tab {
+    flex-shrink: 0;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid var(--card-border);
+    font-size: 1.3rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .species-tab.active { border-color: var(--leaf); box-shadow: var(--shadow), 0 0 0 3px rgba(79,154,86,0.25); }
+  .species-tab.locked { opacity: 0.55; }
+  .species-tab .lock-badge {
+    position: absolute; bottom: -2px; right: -2px;
+    font-size: 0.7rem;
+    background: #fff;
+    border-radius: 50%;
+    width: 18px; height: 18px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--card-border);
+  }
+  .species-tab:active { transform: scale(0.94); }
+
+  /* ---------- Play area ---------- */
+  #playArea {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    touch-action: none;
+    transition: background 0.5s ease;
+  }
+  #playArea[data-species="compsognathus"] { background: linear-gradient(180deg, #cdeb9a 0%, #9fd66a 55%, #7cbf4f 100%); }
+  #playArea[data-species="stegosaurus"]   { background: linear-gradient(180deg, #bfe8c9 0%, #6fb87e 55%, #3f8a54 100%); }
+  #playArea[data-species="triceratops"]   { background: linear-gradient(180deg, #e8dfb0 0%, #c9bd7c 55%, #a69a5c 100%); }
+  #playArea[data-species="oviraptor"]     { background: linear-gradient(180deg, #d9c9f2 0%, #a889d6 55%, #6f5aa8 100%); }
+  #playArea[data-species="velociraptor"]  { background: linear-gradient(180deg, #ffd9a3 0%, #f0985a 55%, #c9622f 100%); }
+  #playArea[data-species="trex"]          { background: linear-gradient(180deg, #4a2c2c 0%, #6e2b2b 55%, #3a1414 100%); }
+
+  /* ---------- Dino ---------- */
+  #dino {
+    position: absolute;
+    left: 0; top: 0;
+    width: 120px; height: 120px;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 5;
+    transition: width 0.3s ease, height 0.3s ease;
+  }
+  #dino .dino-body {
+    position: absolute;
+    left: 50%; bottom: 6%;
+    transform: translateX(-50%);
+    width: 46%; height: 34%;
+    background: var(--dino-color, #4f9a56);
+    border-radius: 50% 50% 45% 45%;
+    box-shadow: inset 0 -6px 10px rgba(0,0,0,0.15);
+  }
+  #dino .dino-head {
+    position: absolute;
+    left: 50%; top: 2%;
+    transform: translateX(-50%);
+    width: 78%; height: 68%;
+    background: var(--dino-color, #4f9a56);
+    border-radius: 50%;
+    box-shadow: inset 0 -8px 14px rgba(0,0,0,0.15), 0 4px 10px rgba(0,0,0,0.2);
+  }
+  #dino .dino-eye {
+    position: absolute;
+    top: 32%;
+    width: 15%; height: 15%;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.08) inset;
+  }
+  #dino .dino-eye::after {
+    content: "";
+    position: absolute;
+    top: 28%; left: 28%;
+    width: 44%; height: 44%;
+    background: #21301f;
+    border-radius: 50%;
+  }
+  #dino .dino-eye.left { left: 20%; }
+  #dino .dino-eye.right { right: 20%; }
+  #dino .dino-mouth {
+    position: absolute;
+    left: 50%; bottom: 14%;
+    transform: translateX(-50%);
+    width: 46%; height: 16%;
+    background: #21301f;
+    border-radius: 0 0 50% 50%;
+    opacity: 0.85;
+    transition: transform 0.15s ease;
+  }
+  #dino.chomp .dino-mouth { transform: translateX(-50%) scaleY(1.6); }
+  #dino.grew .dino-head, #dino.grew .dino-body { animation: growPop 0.5s ease; }
+  @keyframes growPop { 0% { filter: brightness(1); } 40% { filter: brightness(1.4); transform: translateX(-50%) scale(1.12); } 100% { filter: brightness(1); } }
+
+  /* ---------- Food items ---------- */
+  .food {
+    position: absolute;
+    left: 0; top: 0;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    filter: drop-shadow(0 3px 4px rgba(0,0,0,0.25));
+    transition: opacity 0.25s ease, transform 0.25s ease;
+    will-change: transform;
+  }
+  .food.size-small { font-size: 1.5rem; }
+  .food.size-medium { font-size: 2.1rem; }
+  .food.size-large { font-size: 2.8rem; }
+  .food .lock-tag {
+    position: absolute;
+    top: -10px; right: -8px;
+    font-size: 0.9rem;
+  }
+
+  /* ---------- Toasts ---------- */
+  #toastContainer {
+    position: fixed;
+    top: max(70px, calc(env(safe-area-inset-top) + 70px));
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 80;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: min(90vw, 420px);
+    align-items: center;
+    pointer-events: none;
+  }
+  .toast {
+    background: var(--ink);
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    padding: 10px 18px;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    animation: toastIn 0.25s ease;
+    text-align: center;
+  }
+  @keyframes toastIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+  .toast.leaving { animation: toastOut 0.25s ease forwards; }
+  @keyframes toastOut { to { opacity: 0; transform: translateY(-10px); } }
+
+  /* ---------- Backdrops / cards ---------- */
+  .backdrop {
+    position: fixed; inset: 0;
+    background: rgba(33,48,31,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 60;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  .reveal-card {
+    background: var(--card);
+    border-radius: 26px;
+    padding: 28px 24px 24px;
+    max-width: 340px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    animation: popIn 0.35s cubic-bezier(.34,1.56,.64,1);
+  }
+  @keyframes popIn { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .reveal-ribbon {
+    display: inline-block;
+    background: var(--amber);
+    color: #5a3900;
+    font-weight: 800;
+    font-size: 0.72rem;
+    padding: 4px 12px;
+    border-radius: 999px;
+    margin-bottom: 10px;
+  }
+  .reveal-emoji { font-size: 4rem; margin: 6px 0; }
+  .reveal-name { font-size: 1.25rem; font-weight: 800; margin: 4px 0 2px; }
+  .reveal-diet { font-size: 0.75rem; font-weight: 800; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 10px; }
+  .reveal-fact { font-size: 0.88rem; color: var(--ink-soft); font-weight: 600; line-height: 1.4; margin-bottom: 18px; }
+  .btn-primary {
+    width: 100%;
+    padding: 13px;
+    border-radius: 14px;
+    background: var(--leaf);
+    color: #fff;
+    font-weight: 800;
+    font-size: 1rem;
+    box-shadow: 0 4px 0 #326a38;
+  }
+  .btn-primary:active { transform: translateY(3px); box-shadow: none; }
+
+  /* ---------- Pedia ---------- */
+  .pedia-sheet {
+    background: var(--card);
+    border-radius: 26px;
+    padding: 22px;
+    max-width: 420px;
+    width: 100%;
+    max-height: 82vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.35);
+    animation: popIn 0.3s ease;
+  }
+  .pedia-sheet h2 { margin: 0 0 14px; font-size: 1.2rem; }
+  .pedia-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pedia-card {
+    aspect-ratio: 1/1;
+    border-radius: 16px;
+    background: #fff;
+    border: 2px solid var(--card-border);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    padding: 6px;
+    text-align: center;
+  }
+  .pedia-card.locked { opacity: 0.5; }
+  .pedia-card .p-emoji { font-size: 1.7rem; }
+  .pedia-card .p-name { font-size: 0.66rem; font-weight: 800; }
+  .pedia-card .p-diet { font-size: 0.58rem; font-weight: 700; color: var(--ink-soft); }
+  .pedia-close {
+    display: block;
+    width: 100%;
+    text-align: center;
+    margin-top: 16px;
+    padding: 12px;
+    font-weight: 800;
+    color: var(--ink-soft);
+  }
+  .pedia-fact-box {
+    display: none;
+    margin-top: 14px;
+    background: #f4f8f0;
+    border-radius: 14px;
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--ink-soft);
+    line-height: 1.4;
+  }
+  .pedia-fact-box.show { display: block; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <header class="topbar">
+    <a class="icon-btn" href="../index.html" aria-label="Back to games">🏠</a>
+    <div class="growth-wrap">
+      <div class="growth-label"><span id="speciesName">Compsognathus</span> — <span class="stage" id="stageLabel">Baby</span></div>
+      <div class="growth-bar"><div class="growth-fill" id="growthFill"></div></div>
+    </div>
+    <button class="icon-btn" id="pediaBtn" aria-label="Dino-pedia">📖</button>
+  </header>
+
+  <nav class="species-tabs" id="speciesTabs"></nav>
+
+  <main id="playArea" data-species="compsognathus">
+    <div id="dino">
+      <div class="dino-body"></div>
+      <div class="dino-head">
+        <span class="dino-eye left"></span>
+        <span class="dino-eye right"></span>
+        <span class="dino-mouth"></span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Stage-up / unlock reveal -->
+<div class="backdrop" id="revealBackdrop" hidden>
+  <div class="reveal-card">
+    <div class="reveal-ribbon" id="revealRibbon">Grew up!</div>
+    <div class="reveal-emoji" id="revealEmoji">🦖</div>
+    <div class="reveal-name" id="revealName">Compsognathus</div>
+    <div class="reveal-diet" id="revealDiet">Carnivore</div>
+    <div class="reveal-fact" id="revealFact">…</div>
+    <button class="btn-primary" id="revealClose">Keep feeding!</button>
+  </div>
+</div>
+
+<!-- Dino-pedia -->
+<div class="backdrop" id="pediaBackdrop" hidden>
+  <div class="pedia-sheet">
+    <h2>Dino-pedia 📖</h2>
+    <div class="pedia-grid" id="pediaGrid"></div>
+    <div class="pedia-fact-box" id="pediaFactBox"></div>
+    <button class="pedia-close" id="pediaClose">Close</button>
+  </div>
+</div>
+
+<div id="toastContainer"></div>
+
+<script>
+/* =========================================================================
+   Dino Diet — feed each dinosaur only what it really eats. Single-file,
+   solo/local-only game (see README for the planned Phase 2 shared-family
+   sync, mirroring alebrijes-garden's LocalStore/FirebaseStore pattern).
+   ========================================================================= */
+
+const CONFIG = {
+  stageThresholds: { baby: 6, juvenile: 10, adult: 14 }, // points needed to advance out of this stage
+  maxItems: 8,
+  spawnEveryMs: 850,
+  itemSpeed: 40, // px/sec baseline
+  bounceCooldownMs: 500,
+  toastCooldownMs: 1400,
+  itemLifespanMs: [5000, 9000], // items expire and get replaced so the mix keeps refreshing
+  reachableSpawnBias: 0.7 // chance a diet-matching spawn favors a size the dino can currently eat
+};
+
+const STAGE_ORDER = ["baby", "juvenile", "adult", "giant"];
+const STAGE_LABEL = { baby: "Baby", juvenile: "Juvenile", adult: "Adult", giant: "Giant" };
+const STAGE_SCALE = { baby: 0.55, juvenile: 0.75, adult: 1.0, giant: 1.3 };
+const STAGE_ALLOWED_SIZES = {
+  baby: ["small"],
+  juvenile: ["small", "medium"],
+  adult: ["small", "medium", "large"],
+  giant: ["small", "medium", "large"]
+};
+const SIZE_POINTS = { small: 1, medium: 2, large: 3 };
+const SIZE_PX = { small: 34, medium: 46, large: 58 };
+
+const SPECIES = [
+  {
+    id: "compsognathus", name: "Compsognathus", diet: "carnivore", color: "#4f9a56", emoji: "🦖",
+    fact: "Compsognathus was only about the size of a chicken, and it hunted bugs and small lizards."
+  },
+  {
+    id: "stegosaurus", name: "Stegosaurus", diet: "herbivore", color: "#3f8a54", emoji: "🦕",
+    fact: "Stegosaurus had a brain about the size of a walnut, but back plates as tall as a person."
+  },
+  {
+    id: "triceratops", name: "Triceratops", diet: "herbivore", color: "#a69a5c", emoji: "🦕",
+    fact: "Triceratops used its sharp beak to snip through tough branches and ferns."
+  },
+  {
+    id: "oviraptor", name: "Oviraptor", diet: "omnivore", color: "#6f5aa8", emoji: "🐦",
+    fact: "Oviraptor was an omnivore — it ate both plants and small animals, whatever it could find."
+  },
+  {
+    id: "velociraptor", name: "Velociraptor", diet: "carnivore", color: "#c9622f", emoji: "🦖",
+    fact: "Velociraptor was only about the size of a turkey — much smaller than in the movies!"
+  },
+  {
+    id: "trex", name: "T-Rex", diet: "carnivore", color: "#8a2e2e", emoji: "🦖",
+    fact: "Tyrannosaurus rex had one of the strongest bites ever measured in a land animal."
+  }
+];
+const DIET_LABEL = { carnivore: "Carnivore", herbivore: "Herbivore", omnivore: "Omnivore" };
+const DIET_ACCEPTS = { carnivore: ["meat"], herbivore: ["plant"], omnivore: ["plant", "meat"] };
+
+const FOOD_TYPES = [
+  { id: "leaf", kind: "plant", size: "small", emoji: "🌿" },
+  { id: "fern", kind: "plant", size: "medium", emoji: "🌾" },
+  { id: "tree", kind: "plant", size: "large", emoji: "🌳" },
+  { id: "bug", kind: "meat", size: "small", emoji: "🐛" },
+  { id: "fish", kind: "meat", size: "medium", emoji: "🐟" },
+  { id: "meat", kind: "meat", size: "large", emoji: "🍖" },
+  { id: "rock", kind: "none", size: "small", emoji: "🪨" }
+];
+
+const STATE_KEY = "dino-diet-state-v1";
+const $ = (sel) => document.querySelector(sel);
+
+// ---------------------------------------------------------------------
+// Persistent state
+// ---------------------------------------------------------------------
+function loadState() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(STATE_KEY)); } catch { saved = null; }
+  if (saved && saved.species && saved.unlocked) return saved;
+  return {
+    activeSpeciesId: SPECIES[0].id,
+    unlocked: [SPECIES[0].id],
+    pedia: [],
+    species: { [SPECIES[0].id]: { stage: "baby", points: 0 } }
+  };
+}
+function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+
+const state = loadState();
+
+function speciesProgress(id) {
+  if (!state.species[id]) state.species[id] = { stage: "baby", points: 0 };
+  return state.species[id];
+}
+function isUnlocked(id) { return state.unlocked.includes(id); }
+function activeSpecies() { return SPECIES.find((s) => s.id === state.activeSpeciesId) || SPECIES[0]; }
+
+// ---------------------------------------------------------------------
+// UI: species tabs
+// ---------------------------------------------------------------------
+function renderTabs() {
+  $("#speciesTabs").innerHTML = SPECIES.map((sp) => {
+    const unlocked = isUnlocked(sp.id);
+    const active = sp.id === state.activeSpeciesId;
+    return `<button class="species-tab ${active ? "active" : ""} ${unlocked ? "" : "locked"}" data-species="${sp.id}" aria-label="${sp.name}">
+      ${unlocked ? sp.emoji : "❔"}
+      ${unlocked ? "" : '<span class="lock-badge">🔒</span>'}
+    </button>`;
+  }).join("");
+}
+$("#speciesTabs").addEventListener("click", (e) => {
+  const btn = e.target.closest(".species-tab");
+  if (!btn) return;
+  const id = btn.dataset.species;
+  if (!isUnlocked(id)) {
+    const idx = SPECIES.findIndex((s) => s.id === id);
+    const prev = SPECIES[idx - 1];
+    toast(prev ? `Grow ${prev.name} to Giant to unlock this one!` : "Not unlocked yet!");
+    return;
+  }
+  switchSpecies(id);
+});
+
+function switchSpecies(id) {
+  state.activeSpeciesId = id;
+  saveState();
+  renderTabs();
+  applySpeciesTheme();
+  renderGrowthBar();
+  clearFood();
+}
+
+// ---------------------------------------------------------------------
+// UI: dino + theme + growth bar
+// ---------------------------------------------------------------------
+function applySpeciesTheme() {
+  const sp = activeSpecies();
+  const prog = speciesProgress(sp.id);
+  $("#playArea").dataset.species = sp.id;
+  const dino = $("#dino");
+  dino.style.setProperty("--dino-color", sp.color);
+  const scale = STAGE_SCALE[prog.stage];
+  const base = 120;
+  dino.style.width = (base * scale) + "px";
+  dino.style.height = (base * scale) + "px";
+}
+
+function renderGrowthBar() {
+  const sp = activeSpecies();
+  const prog = speciesProgress(sp.id);
+  $("#speciesName").textContent = sp.name;
+  $("#stageLabel").textContent = STAGE_LABEL[prog.stage];
+  const threshold = CONFIG.stageThresholds[prog.stage];
+  const pct = prog.stage === "giant" ? 100 : Math.min(100, Math.round((prog.points / threshold) * 100));
+  $("#growthFill").style.width = pct + "%";
+}
+
+// ---------------------------------------------------------------------
+// Dino position (follows pointer directly)
+// ---------------------------------------------------------------------
+const dinoPos = { x: 0, y: 0 };
+const playArea = $("#playArea");
+const dinoEl = $("#dino");
+
+function setDinoPos(clientX, clientY) {
+  const rect = playArea.getBoundingClientRect();
+  const half = dinoEl.offsetWidth / 2;
+  const x = Math.min(Math.max(clientX - rect.left, half), rect.width - half);
+  const y = Math.min(Math.max(clientY - rect.top, half), rect.height - half);
+  dinoPos.x = x;
+  dinoPos.y = y;
+  dinoEl.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+}
+
+function initDinoPointer() {
+  const rect = playArea.getBoundingClientRect();
+  setDinoPos(rect.left + rect.width / 2, rect.top + rect.height / 2);
+  playArea.addEventListener("pointerdown", (e) => { playArea.setPointerCapture(e.pointerId); setDinoPos(e.clientX, e.clientY); });
+  playArea.addEventListener("pointermove", (e) => { if (e.buttons !== 0 || e.pointerType !== "mouse") setDinoPos(e.clientX, e.clientY); });
+}
+
+// ---------------------------------------------------------------------
+// Food items
+// ---------------------------------------------------------------------
+let foodItems = [];
+let nextFoodId = 1;
+
+function weightedFoodDef(sp, stage) {
+  const accepted = DIET_ACCEPTS[sp.diet];
+  const allowedSizes = STAGE_ALLOWED_SIZES[stage];
+  const r = Math.random();
+  let pool;
+  if (r < 0.55) {
+    pool = FOOD_TYPES.filter((f) => accepted.includes(f.kind));
+    const reachable = pool.filter((f) => allowedSizes.includes(f.size));
+    if (reachable.length && Math.random() < CONFIG.reachableSpawnBias) pool = reachable;
+  } else if (r < 0.85) {
+    pool = FOOD_TYPES.filter((f) => f.kind !== "none" && !accepted.includes(f.kind));
+  } else {
+    pool = FOOD_TYPES.filter((f) => f.kind === "none");
+  }
+  if (!pool.length) pool = FOOD_TYPES.filter((f) => accepted.includes(f.kind));
+  return pool[Math.floor(Math.random() * pool.length)];
+}
+
+function spawnFood() {
+  if (foodItems.length >= CONFIG.maxItems) return;
+  const sp = activeSpecies();
+  const prog = speciesProgress(sp.id);
+  const def = weightedFoodDef(sp, prog.stage);
+  const rect = playArea.getBoundingClientRect();
+  const px = SIZE_PX[def.size];
+  const x = px / 2 + Math.random() * (rect.width - px);
+  const y = px / 2 + Math.random() * (rect.height - px);
+  const angle = Math.random() * Math.PI * 2;
+  const speed = CONFIG.itemSpeed * (0.6 + Math.random() * 0.8);
+  const [minLife, maxLife] = CONFIG.itemLifespanMs;
+  const el = document.createElement("div");
+  el.className = `food size-${def.size}`;
+  el.textContent = def.emoji;
+  el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
+  playArea.appendChild(el);
+  const item = {
+    id: nextFoodId++,
+    def, el,
+    x, y,
+    vx: Math.cos(angle) * speed,
+    vy: Math.sin(angle) * speed,
+    radius: px / 2,
+    cooldownUntil: 0,
+    expiresAt: performance.now() + minLife + Math.random() * (maxLife - minLife)
+  };
+  foodItems.push(item);
+  return item;
+}
+
+function clearFood() {
+  foodItems.forEach((f) => f.el.remove());
+  foodItems = [];
+}
+
+function removeFood(item) {
+  item.el.style.transform = `translate(${item.x}px, ${item.y}px) translate(-50%, -50%) scale(0.2)`;
+  item.el.style.opacity = "0";
+  setTimeout(() => item.el.remove(), 250);
+  foodItems = foodItems.filter((f) => f !== item);
+}
+
+function expireFood(item) {
+  item.el.style.opacity = "0";
+  setTimeout(() => item.el.remove(), 250);
+  foodItems = foodItems.filter((f) => f !== item);
+}
+
+// ---------------------------------------------------------------------
+// Toasts
+// ---------------------------------------------------------------------
+let lastToastAt = 0;
+function toast(msg, force) {
+  const now = Date.now();
+  if (!force && now - lastToastAt < CONFIG.toastCooldownMs) return;
+  lastToastAt = now;
+  const el = document.createElement("div");
+  el.className = "toast";
+  el.textContent = msg;
+  $("#toastContainer").appendChild(el);
+  setTimeout(() => {
+    el.classList.add("leaving");
+    setTimeout(() => el.remove(), 250);
+  }, 2600);
+}
+
+// ---------------------------------------------------------------------
+// Growth / stage-up
+// ---------------------------------------------------------------------
+function gainGrowth(points) {
+  const sp = activeSpecies();
+  const prog = speciesProgress(sp.id);
+  if (prog.stage === "giant") { saveState(); return; }
+  prog.points += points;
+  const threshold = CONFIG.stageThresholds[prog.stage];
+  if (prog.points >= threshold) {
+    prog.points = 0;
+    const idx = STAGE_ORDER.indexOf(prog.stage);
+    prog.stage = STAGE_ORDER[idx + 1];
+    saveState();
+    onStageUp(sp, prog.stage);
+    return;
+  }
+  saveState();
+  renderGrowthBar();
+}
+
+function onStageUp(sp, newStage) {
+  applySpeciesTheme();
+  renderGrowthBar();
+  dinoEl.classList.add("grew");
+  setTimeout(() => dinoEl.classList.remove("grew"), 500);
+
+  if (newStage !== "giant") {
+    toast(`${sp.name} grew to ${STAGE_LABEL[newStage]}!`, true);
+    return;
+  }
+
+  const firstTime = !state.pedia.includes(sp.id);
+  if (firstTime) state.pedia.push(sp.id);
+
+  const idx = SPECIES.findIndex((s) => s.id === sp.id);
+  const next = SPECIES[idx + 1];
+  if (next && !isUnlocked(next.id)) {
+    state.unlocked.push(next.id);
+    speciesProgress(next.id);
+  }
+  saveState();
+  renderTabs();
+  showStageReveal(sp, next, firstTime);
+}
+
+function showStageReveal(sp, next, firstTime) {
+  $("#revealRibbon").textContent = "Grew to Giant! 🎉";
+  $("#revealEmoji").textContent = sp.emoji;
+  $("#revealName").textContent = sp.name;
+  $("#revealDiet").textContent = DIET_LABEL[sp.diet];
+  $("#revealFact").textContent = firstTime
+    ? sp.fact + (next ? ` ${next.name} just unlocked in the Dino-pedia!` : " You've grown every dinosaur!")
+    : sp.fact;
+  $("#revealBackdrop").hidden = false;
+}
+$("#revealClose").addEventListener("click", () => { $("#revealBackdrop").hidden = true; });
+$("#revealBackdrop").addEventListener("click", (e) => { if (e.target.id === "revealBackdrop") $("#revealBackdrop").hidden = true; });
+
+// ---------------------------------------------------------------------
+// Eating / bounce logic
+// ---------------------------------------------------------------------
+function handleCollision(item, now) {
+  if (now < item.cooldownUntil) return;
+  const sp = activeSpecies();
+  const prog = speciesProgress(sp.id);
+  const accepted = DIET_ACCEPTS[sp.diet];
+  const dietOk = accepted.includes(item.def.kind);
+  const allowedSizes = STAGE_ALLOWED_SIZES[prog.stage];
+  const sizeOk = allowedSizes.includes(item.def.size);
+
+  if (dietOk && sizeOk) {
+    dinoEl.classList.add("chomp");
+    setTimeout(() => dinoEl.classList.remove("chomp"), 150);
+    removeFood(item);
+    gainGrowth(SIZE_POINTS[item.def.size]);
+    return;
+  }
+
+  // wrong diet or too big: bounce away, no penalty
+  const dx = item.x - dinoPos.x;
+  const dy = item.y - dinoPos.y;
+  const dist = Math.hypot(dx, dy) || 1;
+  const bounceSpeed = CONFIG.itemSpeed * 1.6;
+  item.vx = (dx / dist) * bounceSpeed;
+  item.vy = (dy / dist) * bounceSpeed;
+  item.cooldownUntil = now + CONFIG.bounceCooldownMs;
+
+  if (!dietOk) {
+    toast(`${sp.name} doesn't eat that!`);
+  } else {
+    toast(`Not big enough yet — keep growing!`);
+  }
+}
+
+// ---------------------------------------------------------------------
+// Main loop
+// ---------------------------------------------------------------------
+let lastFrame = 0;
+let spawnAccum = 0;
+function tick(ts) {
+  if (!lastFrame) lastFrame = ts;
+  const dt = Math.min((ts - lastFrame) / 1000, 0.05);
+  lastFrame = ts;
+
+  const rect = playArea.getBoundingClientRect();
+  const dinoRadius = dinoEl.offsetWidth * 0.4;
+
+  for (const item of foodItems) {
+    if (ts > item.expiresAt) { expireFood(item); continue; }
+    item.x += item.vx * dt;
+    item.y += item.vy * dt;
+    if (item.x < item.radius) { item.x = item.radius; item.vx = Math.abs(item.vx); }
+    if (item.x > rect.width - item.radius) { item.x = rect.width - item.radius; item.vx = -Math.abs(item.vx); }
+    if (item.y < item.radius) { item.y = item.radius; item.vy = Math.abs(item.vy); }
+    if (item.y > rect.height - item.radius) { item.y = rect.height - item.radius; item.vy = -Math.abs(item.vy); }
+    item.el.style.transform = `translate(${item.x}px, ${item.y}px) translate(-50%, -50%)`;
+
+    const dist = Math.hypot(item.x - dinoPos.x, item.y - dinoPos.y);
+    if (dist < dinoRadius + item.radius * 0.6) handleCollision(item, ts);
+  }
+
+  spawnAccum += dt * 1000;
+  if (spawnAccum > CONFIG.spawnEveryMs) {
+    spawnAccum = 0;
+    spawnFood();
+  }
+
+  requestAnimationFrame(tick);
+}
+
+// ---------------------------------------------------------------------
+// Dino-pedia modal
+// ---------------------------------------------------------------------
+function renderPedia() {
+  $("#pediaGrid").innerHTML = SPECIES.map((sp) => {
+    const discovered = state.pedia.includes(sp.id);
+    if (!discovered) {
+      return `<div class="pedia-card locked"><span class="p-emoji">❔</span><span class="p-name">???</span></div>`;
+    }
+    return `<button class="pedia-card" data-species="${sp.id}">
+      <span class="p-emoji">${sp.emoji}</span>
+      <span class="p-name">${sp.name}</span>
+      <span class="p-diet">${DIET_LABEL[sp.diet]}</span>
+    </button>`;
+  }).join("");
+  $("#pediaFactBox").classList.remove("show");
+}
+$("#pediaBtn").addEventListener("click", () => { renderPedia(); $("#pediaBackdrop").hidden = false; });
+$("#pediaClose").addEventListener("click", () => { $("#pediaBackdrop").hidden = true; });
+$("#pediaBackdrop").addEventListener("click", (e) => { if (e.target.id === "pediaBackdrop") $("#pediaBackdrop").hidden = true; });
+$("#pediaGrid").addEventListener("click", (e) => {
+  const btn = e.target.closest(".pedia-card:not(.locked)");
+  if (!btn) return;
+  const sp = SPECIES.find((s) => s.id === btn.dataset.species);
+  const box = $("#pediaFactBox");
+  box.textContent = `${DIET_LABEL[sp.diet]} — ${sp.fact}`;
+  box.classList.add("show");
+});
+
+// ---------------------------------------------------------------------
+// Boot
+// ---------------------------------------------------------------------
+function boot() {
+  renderTabs();
+  applySpeciesTheme();
+  renderGrowthBar();
+  initDinoPointer();
+  for (let i = 0; i < 4; i++) spawnFood();
+  requestAnimationFrame(tick);
+}
+boot();
+</script>
+</body>
+</html>
+</content>
