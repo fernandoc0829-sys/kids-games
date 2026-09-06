@@ -34,6 +34,8 @@
   [hidden] { display: none !important; }
 
   #app {
+    max-width: 720px;
+    margin: 0 auto;
     height: 100vh;
     height: 100dvh;
     display: flex;
@@ -692,11 +694,18 @@ function renderDinoVisual(sp, stage) {
 // Same idea for backgrounds: try assets/bg-<id>.png, fall back to the CSS scenery.
 function applyBackgroundPhoto(sp) {
   const img = new Image();
-  img.onload = () => {
+  const show = () => {
     playArea.style.backgroundImage = `url(assets/bg-${sp.id}.png)`;
     playArea.style.backgroundSize = "cover";
     playArea.style.backgroundPosition = "center";
     playArea.classList.add("has-photo-bg");
+  };
+  img.onload = () => {
+    // decode() ensures the browser has fully rasterized the bitmap before it's
+    // used as a CSS background, avoiding a visible checkerboard/placeholder
+    // flash on large images. Fall back to showing immediately if unsupported.
+    if (img.decode) img.decode().then(show).catch(show);
+    else show();
   };
   img.onerror = () => {
     playArea.style.backgroundImage = "";
