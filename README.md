@@ -264,6 +264,13 @@ consistent prompt per image, something like: *"A cute chibi-style \[STAGE\]
 transparent background, PNG"* — then share the files here to have them
 wired in.
 
+**Stage progression rule** — to keep growth visually obvious across all four
+stages, not just bigger, vary the `[STAGE]` description like this:
+- **Baby** — smooth skin, no fur/feathers, roundest/most oversized head.
+- **Juvenile** — fur or feather tufts start appearing (e.g. on the head/neck/tail).
+- **Adult** — normal/proportionate features, no exaggeration.
+- **Giant** — exaggerated, dramatic features (bigger horns/plates/sail/etc.).
+
 ## Customizing
 
 Everything gameplay-related is in a few clearly-labeled constants near the
