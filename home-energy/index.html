@@ -1,0 +1,929 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}</style></head><body><title>Sunline Home Energy</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky tab bar over a single 1100px column; each tab is a stack of sections, summary first, detail below. */
+:root {
+  --bg: #f3f5f6; --surface: #ffffff; --surface-2: #eef1f3;
+  --ink: #13191e; --ink-2: #47525c; --muted: #75808a; --line: #dbe1e5;
+  --accent: #4a3fb0; --accent-ink: #ffffff; --accent-soft: #ebe8fb;
+  --s-solar: #eb6834; --s-home: #2a78d6; --s-ev: #1baf7a;
+  --band-peak: #fbe4d8; --band-part: #f4efe2;
+  --good: #0a7d0a; --warn: #a86a00; --crit: #c23434;
+  --good-bg: #e3f4e3; --warn-bg: #fdf1d9; --crit-bg: #fbe5e5;
+  --f-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", sans-serif;
+  --f-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1316; --surface: #171c20; --surface-2: #1e252a;
+  --ink: #eef1f3; --ink-2: #b3bdc5; --muted: #87929b; --line: #2a3238;
+  --accent: #a79cf2; --accent-ink: #15123a; --accent-soft: #2a2550;
+  --s-solar: #d95926; --s-home: #3987e5; --s-ev: #199e70;
+  --band-peak: #3a2318; --band-part: #2a2820;
+  --good: #3cc23c; --warn: #f0b23a; --crit: #ef6a6a;
+  --good-bg: #16301a; --warn-bg: #352a12; --crit-bg: #3a1a1a;
+  color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1316; --surface: #171c20; --surface-2: #1e252a;
+  --ink: #eef1f3; --ink-2: #b3bdc5; --muted: #87929b; --line: #2a3238;
+  --accent: #a79cf2; --accent-ink: #15123a; --accent-soft: #2a2550;
+  --s-solar: #d95926; --s-home: #3987e5; --s-ev: #199e70;
+  --band-peak: #3a2318; --band-part: #2a2820;
+  --good: #3cc23c; --warn: #f0b23a; --crit: #ef6a6a;
+  --good-bg: #16301a; --warn-bg: #352a12; --crit-bg: #3a1a1a;
+  color-scheme: dark; }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap { max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.brand { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding-block: 14px 6px; }
+.brand h1 { font-family: var(--f-display); font-weight: 700; font-size: 1.45rem; letter-spacing: -0.01em; margin: 0; }
+.brand h1 span { color: var(--s-solar); }
+.brand .meta { font-family: var(--f-mono); font-size: 0.78rem; color: var(--muted); }
+nav.tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; padding-bottom: 0; }
+nav.tabs a { flex: 0 0 auto; text-decoration: none; color: var(--ink-2); font-weight: 500; font-size: 0.92rem; padding: 10px 12px; border-bottom: 2px solid transparent; }
+nav.tabs a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+nav.tabs a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main { padding-block: 22px 60px; display: grid; gap: 18px; }
+section.view { display: grid; gap: 22px; }
+h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.6rem; line-height: 1.15; margin: 0; text-wrap: balance; letter-spacing: -0.01em; }
+h3 { font-family: var(--f-display); font-weight: 500; font-size: 1.12rem; margin: 0 0 4px; text-wrap: balance; }
+p { margin: 0; max-width: 68ch; }
+.lede { color: var(--ink-2); }
+.small { font-size: 0.85rem; color: var(--muted); }
+.eyebrow { font-family: var(--f-mono); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 12px; min-width: 0; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.grid2 > * { min-width: 0; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.stat { background: var(--surface); padding: 14px 16px; display: grid; gap: 2px; align-content: start; }
+.stat .v { font-family: var(--f-display); font-weight: 700; font-size: 1.7rem; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.stat .v small { font-size: 0.9rem; font-weight: 500; color: var(--ink-2); }
+.stat .d { font-size: 0.85rem; color: var(--ink-2); }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 600; padding: 3px 9px; border-radius: 999px; width: fit-content; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.good { color: var(--good); background: var(--good-bg); }
+.chip.warn { color: var(--warn); background: var(--warn-bg); }
+.chip.crit { color: var(--crit); background: var(--crit-bg); }
+.chip.info { color: var(--accent); background: var(--accent-soft); }
+.banner { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 10px 14px; border-radius: 8px; background: var(--accent-soft); color: var(--ink); font-size: 0.9rem; }
+.banner b { font-weight: 600; }
+button, .btn { font: inherit; font-weight: 600; font-size: 0.9rem; border-radius: 7px; padding: 8px 14px; border: 1px solid var(--accent); background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+button.ghost { background: transparent; color: var(--accent); }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+label.f { display: grid; gap: 4px; font-size: 0.82rem; color: var(--ink-2); font-weight: 500; }
+input[type="number"], input[type="text"], select { font: inherit; font-size: 0.95rem; color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; width: 100%; font-variant-numeric: tabular-nums; }
+.fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+.seg button { background: transparent; color: var(--ink-2); border: 0; border-radius: 0; padding: 6px 12px; font-weight: 500; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.82rem; color: var(--ink-2); }
+.legend i { display: inline-block; width: 12px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+.legend i.box { height: 10px; width: 10px; border-radius: 2px; }
+.chart { width: 100%; position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-family: var(--f-mono); font-size: 11px; fill: var(--muted); }
+.chart text.lbl { fill: var(--ink-2); }
+.chart text.strong { fill: var(--ink); font-weight: 500; }
+.tip { position: fixed; z-index: 20; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 6px 20px rgb(0 0 0 / 0.14); border-radius: 8px; padding: 8px 10px; font-size: 0.82rem; min-width: 150px; font-variant-numeric: tabular-nums; }
+.tip .t { font-weight: 600; margin-bottom: 4px; }
+.tip .r { display: flex; justify-content: space-between; gap: 14px; }
+.tip .r span:first-child::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 2px; background: var(--c, transparent); margin-right: 6px; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; font-variant-numeric: tabular-nums; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 600; color: var(--ink-2); font-size: 0.8rem; }
+td.num, th.num { text-align: right; font-family: var(--f-mono); }
+tr.best td { background: var(--accent-soft); }
+.tablewrap { overflow-x: auto; }
+.timeline { display: grid; grid-template-columns: repeat(24, 1fr); height: 34px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+.timeline div { position: relative; }
+.timeline div.now { outline: 2px solid var(--ink); outline-offset: -2px; z-index: 1; }
+.tl-axis { display: grid; grid-template-columns: repeat(8, 1fr); font-family: var(--f-mono); font-size: 0.72rem; color: var(--muted); }
+.p-peak { background: var(--band-peak); } .p-part { background: var(--band-part); } .p-off { background: var(--surface-2); }
+.todo { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.todo li { display: grid; grid-template-columns: 92px 1fr; gap: 12px; align-items: baseline; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.todo li:last-child { border-bottom: 0; padding-bottom: 0; }
+.todo .when { font-family: var(--f-mono); font-size: 0.82rem; color: var(--ink-2); }
+.verdict { display: grid; gap: 6px; padding: 16px 18px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); }
+.verdict .big { font-family: var(--f-display); font-weight: 700; font-size: 1.35rem; text-wrap: balance; }
+.opts { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+.opt { display: grid; gap: 8px; align-content: start; }
+.opt dl { display: grid; grid-template-columns: 1fr auto; gap: 4px 12px; margin: 0; font-size: 0.9rem; }
+.opt dt { color: var(--ink-2); } .opt dd { margin: 0; text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.drop { border: 1.5px dashed var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 8px; background: var(--surface-2); }
+.drop.over { border-color: var(--accent); }
+ol.steps { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; max-width: 70ch; }
+details { border-top: 1px solid var(--line); padding-top: 10px; }
+summary { cursor: pointer; font-weight: 600; }
+.note { font-size: 0.82rem; color: var(--muted); max-width: 80ch; }
+@media (max-width: 520px) { h2 { font-size: 1.35rem; } .stat .v { font-size: 1.45rem; } .todo li { grid-template-columns: 1fr; gap: 2px; } }
+@media (prefers-reduced-motion: no-preference) { .view { animation: fade .25s ease-out; } @keyframes fade { from { opacity: .4; } to { opacity: 1; } } }
+</style>
+
+<header class="top">
+  <div class="wrap">
+    <div class="brand">
+      <h1>Sun<span>line</span> Home Energy</h1>
+      <div class="meta" id="dataBadge">Example data</div>
+    </div>
+    <nav class="tabs" aria-label="Sections">
+      <a href="#overview" data-view="overview">Overview</a>
+      <a href="#plans" data-view="plans">Rate plans</a>
+      <a href="#ev" data-view="ev">Rivian charging</a>
+      <a href="#upgrades" data-view="upgrades">Battery or panels</a>
+      <a href="#setup" data-view="setup">Your data &amp; setup</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="banner" id="demoBanner"><span>You're looking at <b>example numbers</b> for a 7.2 kW system and a Rivian driven 35 miles a day.</span><button class="ghost" type="button" data-go="setup">Load your PG&amp;E and solar data</button></div>
+
+  <!-- OVERVIEW -->
+  <section class="view" id="v-overview">
+    <div class="stats" id="ovStats"></div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="eyebrow">Today on <span id="todayPlan"></span></div>
+        <h3 id="nowLine"></h3>
+        <div class="timeline" id="timeline" aria-label="Price periods by hour today"></div>
+        <div class="tl-axis"><span>12a</span><span>3a</span><span>6a</span><span>9a</span><span>12p</span><span>3p</span><span>6p</span><span>9p</span></div>
+        <div class="legend"><span><i class="box p-off"></i>Off-peak</span><span><i class="box p-part"></i>Part-peak</span><span><i class="box p-peak"></i>Peak</span></div>
+        <ul class="todo" id="todo"></ul>
+      </div>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between"><div><div class="eyebrow">Are my panels working?</div><h3>Daily solar production</h3></div><span id="perfChip"></span></div>
+        <p class="small" id="perfText"></p>
+        <div class="legend"><span><i class="box" style="background:var(--s-solar)"></i>Produced</span><span><i style="background:var(--ink-2)"></i>Expected for your system on a clear-to-average day</span></div>
+        <div class="chart" id="chDaily"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><div><div class="eyebrow">Typical year</div><h3>Solar made vs. energy used, by month</h3></div>
+        <div class="legend"><span><i class="box" style="background:var(--s-solar)"></i>Solar produced</span><span><i class="box" style="background:var(--s-home)"></i>Home + Rivian used</span></div></div>
+      <div class="chart" id="chMonthly"></div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div><div class="eyebrow">Average day</div><h3>When you make power vs. when you use it</h3></div>
+        <label class="f" style="width:150px">Month<select id="dayMonth"></select></label>
+      </div>
+      <div class="legend"><span><i style="background:var(--s-solar)"></i>Solar</span><span><i style="background:var(--s-home)"></i>Home (no car)</span><span><i style="background:var(--s-ev)"></i>Rivian charging</span><span><i class="box p-peak"></i>Peak price hours</span></div>
+      <div class="chart" id="chDay"></div>
+      <p class="small">Shaded bands are your plan's peak hours. Every kWh you use there instead of off-peak costs the most, so it's the first thing to shrink.</p>
+    </div>
+  </section>
+
+  <!-- PLANS -->
+  <section class="view" id="v-plans" hidden>
+    <div><h2>Which PG&amp;E plan costs you least</h2><p class="lede">Each plan is run against your hour-by-hour usage and solar for a full year, with your Rivian charging at its best time for that plan.</p></div>
+    <div class="verdict" id="planVerdict"></div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><h3>Estimated yearly cost</h3><span class="small" id="planNemNote"></span></div>
+      <div class="chart" id="chPlans"></div>
+      <div class="tablewrap"><table id="planTable"></table></div>
+    </div>
+    <div class="panel">
+      <h3>What you should expect to spend each month</h3>
+      <p class="small" id="budgetText"></p>
+      <div class="tablewrap"><table id="monthTable"></table></div>
+    </div>
+    <p class="note">Rates are approximate PG&amp;E residential prices after the March 2026 change, including the roughly $24/month Base Services Charge. Edit them under Your data &amp; setup to match your latest bill. Results ignore CARE/FERA discounts, CCA generation (e.g. Peninsula Clean Energy, MCE), and holidays.</p>
+  </section>
+
+  <!-- EV -->
+  <section class="view" id="v-ev" hidden>
+    <div><h2>Charging your Rivian for less</h2><p class="lede" id="evLede"></p></div>
+    <div class="stats" id="evStats"></div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between;align-items:flex-end">
+        <div><h3>Cost per night by charging start time</h3><p class="small">On <b id="evPlanName"></b>. Each bar is what one night of charging adds to your bill if the car starts at that hour. Only start times that finish before the car leaves are shown.</p></div>
+        <label class="f" style="width:170px">Plan<select id="evPlan"></select></label>
+      </div>
+      <div class="chart" id="chEv"></div>
+    </div>
+    <div class="panel">
+      <h3>Set it up in the Rivian app</h3>
+      <ol class="steps" id="evSteps"></ol>
+      <p class="small">Charging at a lower power (for example 32 A instead of 48 A) is fine as long as it still finishes before the next price change. The chart accounts for your charger power from setup.</p>
+    </div>
+  </section>
+
+  <!-- UPGRADES -->
+  <section class="view" id="v-upgrades" hidden>
+    <div><h2>Add a battery or more panels?</h2><p class="lede">Each option is simulated hour by hour for a year on its own best plan, then compared with what you pay today on your best plan.</p></div>
+    <div class="verdict" id="upVerdict"></div>
+    <div class="opts" id="upOpts"></div>
+    <div class="panel">
+      <h3>Change the assumptions</h3>
+      <div class="fields">
+        <label class="f">Battery size (kWh)<input type="number" id="b_kwh" step="0.5" min="1"></label>
+        <label class="f">Battery power (kW)<input type="number" id="b_kw" step="0.5" min="1"></label>
+        <label class="f">Battery installed cost ($)<input type="number" id="b_cost" step="500" min="0"></label>
+        <label class="f">Panels to add (kW)<input type="number" id="p_kw" step="0.4" min="0.4"></label>
+        <label class="f">Panel cost ($ per watt)<input type="number" id="p_cpw" step="0.1" min="0"></label>
+        <label class="f">Rebates / incentives (%)<input type="number" id="inc" step="1" min="0" max="100"></label>
+        <label class="f">Yearly rate increase (%)<input type="number" id="esc" step="0.5" min="0"></label>
+      </div>
+      <label class="row small"><input type="checkbox" id="b_export"> Under NBT, let the battery sell to the grid on the highest-value evenings (mostly September)</label>
+    </div>
+    <div class="panel" id="upNotes"></div>
+  </section>
+
+  <!-- SETUP -->
+  <section class="view" id="v-setup" hidden>
+    <div><h2>Your data &amp; setup</h2><p class="lede">Everything is processed in this browser. Your files are never uploaded anywhere.</p></div>
+    <div class="grid2">
+      <div class="panel">
+        <h3>1. PG&amp;E usage (Green Button)</h3>
+        <ol class="steps small">
+          <li>Sign in at pge.com and open <b>Energy Usage Details</b>.</li>
+          <li>Click the green <b>Green Button: Download my data</b> button.</li>
+          <li>Choose <b>Export usage for a range of days</b>, pick the last 12 months, format <b>CSV</b>.</li>
+          <li>Drop the electric CSV here (you can ignore the gas file).</li>
+        </ol>
+        <div class="drop" id="dropPge"><input type="file" id="filePge" accept=".csv,text/csv"><span class="small" id="pgeStatus">No file loaded.</span></div>
+      </div>
+      <div class="panel">
+        <h3>2. Solar production</h3>
+        <ol class="steps small">
+          <li><b>Enphase:</b> Enlighten app or web → Reports → Production → download CSV (hourly or 15-min).</li>
+          <li><b>SolarEdge:</b> monitoring.solaredge.com → Dashboard → Energy → Export to CSV.</li>
+          <li><b>Tesla:</b> Tesla app → Energy → Download My Data.</li>
+          <li>No file? Leave this empty and the app estimates production from your system size.</li>
+        </ol>
+        <div class="drop" id="dropSolar"><input type="file" id="fileSolar" accept=".csv,text/csv"><span class="small" id="solarStatus">No file loaded.</span></div>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>3. Your home, car and plan</h3>
+      <div class="fields">
+        <label class="f">Solar system size (kW DC)<input type="number" id="sysKw" step="0.1" min="0"></label>
+        <label class="f">Current PG&amp;E plan<select id="curPlan"></select></label>
+        <label class="f">Solar billing<select id="nem"><option value="NEM2">NEM 2 (installed before Apr 2023)</option><option value="NBT">Net Billing / NEM 3</option></select></label>
+        <label class="f">Rivian miles per day<input type="number" id="evMiles" step="1" min="0"></label>
+        <label class="f">Rivian efficiency (mi/kWh)<input type="number" id="evEff" step="0.1" min="0.5"></label>
+        <label class="f">Charging nights per week<input type="number" id="evNights" step="1" min="0" max="7"></label>
+        <label class="f">Home charger power (kW)<input type="number" id="evKw" step="0.5" min="1"></label>
+        <label class="f">Car starts charging now at<select id="evStart"></select></label>
+        <label class="f">Car is usually home by<select id="evHome"></select></label>
+        <label class="f">Car usually leaves at<select id="evLeave"></select></label>
+      </div>
+      <div class="row"><button type="button" id="resetData" class="ghost">Go back to example data</button><span class="small" id="saveNote"></span></div>
+    </div>
+    <div class="panel">
+      <h3>4. Rates</h3>
+      <p class="small">Prices in $ per kWh. Check the “Electric charges” section of your PG&amp;E bill or pge.com/tariffs and adjust any that differ.</p>
+      <div class="tablewrap"><table id="rateTable"></table></div>
+      <div class="fields">
+        <label class="f">Base Services Charge ($/day)<input type="number" id="baseDay" step="0.01" min="0"></label>
+        <label class="f">E-TOU-C baseline credit ($/kWh)<input type="number" id="blCredit" step="0.01" min="0"></label>
+        <label class="f">Baseline allowance (kWh/day)<input type="number" id="blDay" step="0.1" min="0"></label>
+        <label class="f">NEM 2 non-bypassable charge ($/kWh)<input type="number" id="nbc" step="0.005" min="0"></label>
+      </div>
+    </div>
+    <div class="panel">
+      <h3>Why there's no “Sign in with PG&amp;E” button</h3>
+      <p class="small">PG&amp;E's automatic data feed (Share My Data) only connects to registered companies that have gone through PG&amp;E's third-party approval, not to a personal app. The Green Button download above gives the same hourly data. Re-download it every month or two to keep the app current. If you want it fully automatic, paid services such as UtilityAPI are registered with PG&amp;E and can export your data on a schedule.</p>
+    </div>
+  </section>
+</main>
+<div class="tip" id="tip" hidden></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DIM = [31,28,31,30,31,30,31,31,30,31,30,31];
+const isSummer = m => m >= 5 && m <= 8;
+const fmt$ = (v, d = 0) => (v < 0 ? '−$' : '$') + Math.abs(v).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const fmtN = (v, d = 0) => v.toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const hourLbl = h => { const hh = ((h % 24) + 24) % 24; return (hh % 12 === 0 ? 12 : hh % 12) + (hh < 12 ? ' am' : ' pm'); };
+const store = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }, del(k) { try { localStorage.removeItem(k); } catch (e) {} } };
+
+/* ---------- Plans ---------- */
+const PERIODS = {
+  ev:   (h) => (h >= 16 && h < 21) ? 'peak' : ((h === 15 || h >= 21) ? 'part' : 'off'),
+  touc: (h) => (h >= 16 && h < 21) ? 'peak' : 'off',
+  toud: (h, dow) => (dow !== 0 && dow !== 6 && h >= 17 && h < 20) ? 'peak' : 'off',
+};
+const PLANS = {
+  'EV2-A':  { kind: 'ev', nbt: true,  blurb: 'EV plan. Cheapest overnight (midnight–3 pm), peak 4–9 pm daily.' },
+  'E-ELEC': { kind: 'ev', nbt: true,  blurb: 'Electric-home plan. Same hours as EV2-A, higher off-peak, lower peak.' },
+  'E-TOU-C':{ kind: 'touc', nbt: false, blurb: 'Standard plan. Peak 4–9 pm daily, with a baseline credit.' },
+  'E-TOU-D':{ kind: 'toud', nbt: false, blurb: 'Peak only 5–8 pm on weekdays.' },
+};
+const DEFAULT_RATES = {
+  'EV2-A':  { s: { peak: 0.538, part: 0.428, off: 0.226 }, w: { peak: 0.411, part: 0.395, off: 0.226 } },
+  'E-ELEC': { s: { peak: 0.460, part: 0.370, off: 0.334 }, w: { peak: 0.321, part: 0.298, off: 0.283 } },
+  'E-TOU-C':{ s: { peak: 0.460, off: 0.380 }, w: { peak: 0.360, off: 0.330 } },
+  'E-TOU-D':{ s: { peak: 0.450, off: 0.360 }, w: { peak: 0.380, off: 0.340 } },
+};
+// Approximate Net Billing export values, $/kWh: 4–9 pm vs other hours, by month.
+const NBT_EVE = [0.09,0.08,0.07,0.07,0.08,0.12,0.16,0.25,0.90,0.20,0.10,0.10];
+const NBT_DAY = [0.04,0.04,0.025,0.025,0.025,0.035,0.035,0.035,0.05,0.045,0.045,0.045];
+const nbtVal = (m, h) => (h >= 16 && h < 21) ? NBT_EVE[m] : NBT_DAY[m];
+
+const DEFAULTS = {
+  sysKw: 7.2, plan: 'E-TOU-C', nem: 'NEM2',
+  evMiles: 35, evEff: 2.2, evNights: 7, evKw: 9.6, evStart: 21, evHome: 18, evLeave: 7,
+  baseDay: 0.79343, blCredit: 0.08, blDay: 9.8, nbc: 0.03,
+  rates: DEFAULT_RATES,
+  b_kwh: 13.5, b_kw: 5, b_cost: 15000, p_kw: 3.2, p_cpw: 3.0, inc: 0, esc: 4, b_export: true,
+};
+let S = Object.assign({}, JSON.parse(JSON.stringify(DEFAULTS)), store.get('sl_settings') || {});
+let DATA = store.get('sl_data'); // {solar, home, daily, src}
+let viewMonth = new Date().getMonth();
+
+/* ---------- Solar estimate ---------- */
+const YIELD = [72,92,128,152,172,180,186,172,146,114,84,68]; // kWh per kW DC, coastal/inland CA average
+function solarShape(m) {
+  const doy = [15,46,74,105,135,166,196,227,258,288,319,349][m];
+  const L = 12 + 2.3 * Math.cos(2 * Math.PI * (doy - 172) / 365);
+  const noon = (m >= 2 && m <= 9) ? 13.1 : 12.1;
+  const rise = noon - L / 2, out = [];
+  let tot = 0;
+  for (let h = 0; h < 24; h++) {
+    let v = 0;
+    for (let q = 0; q < 4; q++) { const t = h + (q + 0.5) / 4; const x = (t - rise) / L; if (x > 0 && x < 1) v += Math.pow(Math.sin(Math.PI * x), 1.4); }
+    out.push(v); tot += v;
+  }
+  return out.map(v => v / tot);
+}
+const SHAPES = MONTHS.map((_, m) => solarShape(m));
+const estSolarHour = (m, h, kw) => YIELD[m] * kw / DIM[m] * SHAPES[m][h];
+const estSolarDay = (m, kw) => YIELD[m] * kw / DIM[m];
+
+/* ---------- EV profile ---------- */
+function evKwhNight() { return S.evEff > 0 ? S.evMiles / S.evEff * 1.1 : 0; } // 10% charging loss
+function evStarts() {
+  const need = Math.ceil(evKwhNight() / Math.max(S.evKw, 0.5));
+  const win = ((S.evLeave - S.evHome + 24) % 24) || 24, out = [];
+  for (let i = 0; i <= win - need; i++) out.push((S.evHome + i) % 24);
+  return out.length ? out : [S.evHome];
+}
+function evProfile(start) {
+  const out = new Array(24).fill(0); let rem = evKwhNight(); let h = start;
+  for (let i = 0; i < 24 && rem > 1e-6; i++) { const e = Math.min(S.evKw, rem); out[h % 24] += e; rem -= e; h++; }
+  const f = S.evNights / 7; return out.map(v => v * f);
+}
+
+/* ---------- Example data ---------- */
+function rng(seed) { return () => { seed = (seed * 1664525 + 1013904223) % 4294967296; return seed / 4294967296; }; }
+function demoData() {
+  const kw = S.sysKw, solar = [], home = [];
+  for (let m = 0; m < 12; m++) {
+    solar.push([0, 1].map(() => SHAPES[m].map((_, h) => estSolarHour(m, h, kw) * 0.95)));
+    home.push([0, 1].map(we => Array.from({ length: 24 }, (_, h) => {
+      let v = 0.32;
+      v += 0.55 * Math.exp(-((h - (we ? 9 : 7)) ** 2) / 3);
+      v += 1.05 * Math.exp(-((h - 19) ** 2) / 4.5);
+      if (we) v += 0.35 * Math.exp(-((h - 13) ** 2) / 8);
+      const ac = [0,0,0,0,0.15,0.5,0.95,0.95,0.6,0.15,0,0][m]; v += ac * Math.exp(-((h - 17) ** 2) / 6);
+      const heat = [0.35,0.25,0.1,0,0,0,0,0,0,0,0.15,0.35][m]; v += heat * (Math.exp(-((h - 7) ** 2) / 3) + Math.exp(-((h - 20) ** 2) / 5));
+      return v;
+    })));
+  }
+  const r = rng(42), daily = [], end = new Date(); end.setHours(0, 0, 0, 0);
+  for (let i = 60; i >= 1; i--) {
+    const d = new Date(end); d.setDate(d.getDate() - i); const m = d.getMonth();
+    let f = 0.86 + 0.12 * r(); if (r() < 0.12) f = 0.3 + 0.35 * r();
+    daily.push({ d: d.toISOString().slice(0, 10), kwh: estSolarDay(m, kw) * f });
+  }
+  return { solar, home, daily, src: { demo: true } };
+}
+
+/* ---------- Simulation ---------- */
+function simulate(o) {
+  const P = PLANS[o.plan], R = S.rates[o.plan], prof = o.data;
+  const ev = o.evStart == null ? new Array(24).fill(0) : evProfile(o.evStart);
+  const B = o.batt, eta = Math.sqrt(0.9);
+  let soc = B ? B.kwh * 0.5 : 0;
+  const mo = MONTHS.map(() => ({ imp: 0, exp: 0, cost: 0, credit: 0, solar: 0, load: 0, days: 0, bcred: 0 }));
+  for (let d = 0; d < 365; d++) {
+    const dt = new Date(2026, 0, 1 + d), m = dt.getMonth(), dow = dt.getDay(), we = (dow === 0 || dow === 6) ? 1 : 0;
+    const pr = R[isSummer(m) ? 's' : 'w'], M = mo[m]; M.days++;
+    for (let h = 0; h < 24; h++) {
+      const sol = prof.solar[m][we][h] * o.solarScale, home = prof.home[m][we][h], car = ev[h];
+      const per = PERIODS[P.kind](h, dow); const price = pr[per] ?? pr.off;
+      let net = home + car - sol;
+      if (B) {
+        if (net < 0) { const c = Math.min(-net, B.kw, (B.kwh - soc) / eta); soc += c * eta; net += c; }
+        else if (per !== 'off') { const dch = Math.min(net, Math.max(0, home - sol), B.kw, soc * eta); soc -= dch / eta; net -= dch; }
+        if (o.nem === 'NBT' && B.exportHigh && nbtVal(m, h) >= 0.3) {
+          const extra = Math.min(B.kw - Math.max(0, -net), Math.max(0, soc - 0.2 * B.kwh) * eta);
+          if (extra > 0) { soc -= extra / eta; net -= extra; }
+        }
+      }
+      const imp = Math.max(net, 0), exp = Math.max(-net, 0);
+      M.imp += imp; M.exp += exp; M.cost += imp * price;
+      M.credit += o.nem === 'NBT' ? exp * nbtVal(m, h) : exp * Math.max(0, price - S.nbc);
+      M.solar += sol; M.load += home + car;
+    }
+  }
+  let energy = 0;
+  mo.forEach((M, m) => {
+    if (o.plan === 'E-TOU-C') M.bcred = S.blCredit * Math.min(Math.max(M.imp - M.exp, 0), S.blDay * M.days);
+    M.energy = M.cost - M.credit - M.bcred; M.base = S.baseDay * M.days; energy += M.energy;
+  });
+  const lost = Math.max(0, -energy); // unused credits at true-up (small surplus payment ignored)
+  return { months: mo, energy, lost, total: Math.max(energy, 0) + S.baseDay * 365 };
+}
+const allowedPlans = nem => Object.keys(PLANS).filter(p => nem === 'NEM2' || PLANS[p].nbt);
+function bestEvStart(plan, nem, data, solarScale, batt) {
+  let best = null;
+  for (const h of evStarts()) { const r = simulate({ plan, nem, data, solarScale, batt, evStart: h }); if (!best || r.total < best.r.total - 0.01 || (Math.abs(r.total - best.r.total) <= 0.01 && r.energy < best.r.energy - 0.01)) best = { h, r }; }
+  return best;
+}
+function bestPlan(nem, data, solarScale, batt) {
+  return allowedPlans(nem).map(p => ({ plan: p, ...bestEvStart(p, nem, data, solarScale, batt) })).sort((a, b) => (a.r.total - b.r.total) || (a.r.energy - b.r.energy));
+}
+
+/* ---------- CSV parsing ---------- */
+function parseCSV(text) {
+  const rows = []; let row = [], cur = '', q = false;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (q) { if (c === '"') { if (text[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += c; }
+    else if (c === '"') q = true;
+    else if (c === ',') { row.push(cur.trim()); cur = ''; }
+    else if (c === '\n' || c === '\r') { if (c === '\r' && text[i + 1] === '\n') i++; row.push(cur.trim()); rows.push(row); row = []; cur = ''; }
+    else cur += c;
+  }
+  if (cur || row.length) { row.push(cur.trim()); rows.push(row); }
+  return rows.filter(r => r.some(c => c !== ''));
+}
+function parseDT(s, t) {
+  s = (s || '').trim(); if (t) s += ' ' + t.trim();
+  let m = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})(?:[ T](\d{1,2}):(\d{2}))?/);
+  if (m) return { y: +m[1], mo: +m[2] - 1, d: +m[3], h: m[4] != null ? +m[4] : null, mi: m[5] != null ? +m[5] : 0 };
+  m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[ ,T]+(\d{1,2}):(\d{2})(?::\d{2})?\s*([AaPp][Mm])?)?/);
+  if (m) {
+    let y = +m[3]; if (y < 100) y += 2000; let h = m[4] != null ? +m[4] : null;
+    if (h != null && m[6]) { const pm = /p/i.test(m[6]); if (pm && h < 12) h += 12; if (!pm && h === 12) h = 0; }
+    return { y, mo: +m[1] - 1, d: +m[2], h, mi: m[5] != null ? +m[5] : 0 };
+  }
+  return null;
+}
+const num = v => { const x = parseFloat(String(v).replace(/[^0-9.\-]/g, '')); return isFinite(x) ? x : null; };
+const hkey = p => `${p.y}-${String(p.mo + 1).padStart(2, '0')}-${String(p.d).padStart(2, '0')} ${String(p.h).padStart(2, '0')}`;
+
+function parsePge(text) {
+  const rows = parseCSV(text);
+  const hi = rows.findIndex(r => r.some(c => /^date$/i.test(c)) && r.some(c => /kwh|usage|import/i.test(c)));
+  if (hi < 0) throw new Error('This doesn’t look like a PG&E Green Button electric CSV. Look for columns named DATE, START TIME and USAGE or IMPORT.');
+  const H = rows[hi].map(c => c.toLowerCase());
+  const iType = H.findIndex(c => c === 'type'), iDate = H.findIndex(c => c === 'date'), iStart = H.findIndex(c => c.startsWith('start'));
+  const iImp = H.findIndex(c => c.startsWith('import')), iExp = H.findIndex(c => c.startsWith('export')), iUse = H.findIndex(c => c.startsWith('usage'));
+  const hours = new Map();
+  for (const r of rows.slice(hi + 1)) {
+    if (iType >= 0 && r[iType] && !/electric/i.test(r[iType])) continue;
+    const p = parseDT(r[iDate], iStart >= 0 ? r[iStart] : ''); if (!p || p.h == null) continue;
+    let imp = 0, exp = 0;
+    if (iImp >= 0) { imp = num(r[iImp]) || 0; exp = iExp >= 0 ? Math.abs(num(r[iExp]) || 0) : 0; }
+    else { const u = num(r[iUse]); if (u == null) continue; if (u >= 0) imp = u; else exp = -u; }
+    const k = hkey(p), e = hours.get(k) || { p, imp: 0, exp: 0 }; e.imp += imp; e.exp += exp; hours.set(k, e);
+  }
+  if (hours.size < 24) throw new Error('Found fewer than 24 hourly readings. Export hourly or 15-minute data, not daily or monthly totals.');
+  return hours;
+}
+function parseSolar(text) {
+  const rows = parseCSV(text);
+  const hi = rows.findIndex(r => r.length >= 2 && r.some(c => /date|time/i.test(c)));
+  if (hi < 0) throw new Error('Couldn’t find a date/time column in this file.');
+  const H = rows[hi], body = rows.slice(hi + 1);
+  const iT = H.findIndex(c => /date|time/i.test(c));
+  const iT2 = H.findIndex((c, i) => i !== iT && /^time$/i.test(c));
+  const numericCol = i => body.slice(0, 50).filter(r => num(r[i]) != null).length > 10;
+  let iE = H.findIndex((c, i) => i !== iT && /produc|generat|solar|pv/i.test(c) && numericCol(i));
+  if (iE < 0) iE = H.findIndex((c, i) => i !== iT && /energy|wh/i.test(c) && numericCol(i));
+  if (iE < 0) iE = H.findIndex((c, i) => i !== iT && i !== iT2 && numericCol(i));
+  if (iE < 0) throw new Error('Couldn’t find a production column in this file.');
+  const head = H[iE].toLowerCase();
+  const isWh = /\(wh\)|\bwh\b/.test(head) && !/kwh/.test(head), isPower = /\(kw\)|\bkw\b/.test(head) && !/kwh/.test(head);
+  const pts = [];
+  for (const r of body) { const p = parseDT(r[iT], iT2 >= 0 ? r[iT2] : ''); const v = num(r[iE]); if (p && v != null) pts.push({ p, v }); }
+  if (!pts.length) throw new Error('No readable rows found.');
+  const hasTime = pts.some(x => x.p.h != null);
+  let stepH = 1;
+  if (hasTime && pts.length > 2) {
+    const t = x => new Date(x.p.y, x.p.mo, x.p.d, x.p.h, x.p.mi).getTime();
+    stepH = Math.max(1 / 60, Math.min(1, Math.abs(t(pts[1]) - t(pts[0])) / 3600000));
+  }
+  const hours = new Map(), days = new Map();
+  for (const { p, v } of pts) {
+    let e = isWh ? v / 1000 : v; if (isPower) e = v * stepH;
+    if (e < 0) e = 0;
+    const dk = hkey({ ...p, h: 0 }).slice(0, 10); days.set(dk, (days.get(dk) || 0) + e);
+    if (hasTime) { const k = hkey(p); hours.set(k, (hours.get(k) || 0) + e); }
+  }
+  return { hours, days, hasTime };
+}
+
+/* ---------- Build profiles from files ---------- */
+function buildFromFiles(pge, sol) {
+  const kw = S.sysKw, evCur = evProfile(S.evStart);
+  const z = () => MONTHS.map(() => [0, 1].map(() => new Array(24).fill(0)));
+  const hs = z(), hc = z(), ss = z(), sc = z();
+  const solMonth = new Array(12).fill(0), estMonth = new Array(12).fill(0);
+  if (sol) {
+    for (const [dk, e] of sol.days) { const m = +dk.slice(5, 7) - 1; solMonth[m] += e; estMonth[m] += estSolarDay(m, kw); }
+    if (sol.hasTime) for (const [k, e] of sol.hours) {
+      const m = +k.slice(5, 7) - 1, h = +k.slice(11, 13);
+      for (const w of [0, 1]) { ss[m][w][h] += e; sc[m][w][h] += 1; }
+    }
+  }
+  const cal = (() => { const a = solMonth.reduce((x, y) => x + y, 0), b = estMonth.reduce((x, y) => x + y, 0); return a > 0 && b > 0 ? a / b : 0.95; })();
+  const solarAt = (m, h, k) => {
+    if (sol && sol.hasTime && sol.hours.has(k)) return sol.hours.get(k);
+    return estSolarHour(m, h, kw) * cal;
+  };
+  if (pge) for (const [k, e] of pge) {
+    const { p } = e, m = p.mo, h = p.h, we = [0, 6].includes(new Date(p.y, m, p.d).getDay()) ? 1 : 0;
+    const load = e.imp - e.exp + (kw > 0 || sol ? solarAt(m, h, k) : 0);
+    hs[m][we][h] += Math.max(0.12, load - evCur[h]); hc[m][we][h] += 1;
+  }
+  const solar = MONTHS.map((_, m) => [0, 1].map(w => SHAPES[m].map((_, h) => {
+    if (sol && sol.hasTime && sc[m][w][h] > 0 && solMonth[m] > 0) return ss[m][w][h] / sc[m][w][h];
+    if (sol && solMonth[m] > 0 && !sol.hasTime) { const nd = [...sol.days.keys()].filter(d => +d.slice(5, 7) - 1 === m).length; return solMonth[m] / nd * SHAPES[m][h]; }
+    return estSolarHour(m, h, kw) * cal;
+  })));
+  const demo = demoData();
+  const home = MONTHS.map((_, m) => [0, 1].map(w => Array.from({ length: 24 }, (_, h) => {
+    if (hc[m][w][h] > 0) return hs[m][w][h] / hc[m][w][h];
+    const oth = hc[m][1 - w][h] > 0 ? hs[m][1 - w][h] / hc[m][1 - w][h] : null; if (oth != null) return oth;
+    let s = 0, n = 0; for (let mm = 0; mm < 12; mm++) for (const ww of [0, 1]) if (hc[mm][ww][h] > 0 && isSummer(mm) === isSummer(m)) { s += hs[mm][ww][h] / hc[mm][ww][h]; n++; }
+    return n ? s / n : demo.home[m][w][h];
+  })));
+  let daily = null;
+  if (sol && sol.days.size) daily = [...sol.days.entries()].sort((a, b) => a[0] < b[0] ? -1 : 1).slice(-60).map(([d, kwh]) => ({ d, kwh }));
+  const pgeMonths = new Set(pge ? [...pge.values()].map(e => e.p.mo) : []);
+  return { solar, home, daily, src: { demo: false, pge: !!pge, pgeHours: pge ? pge.size : 0, pgeMonths: pgeMonths.size, solarFile: !!sol, solarDays: sol ? sol.days.size : 0, cal } };
+}
+
+/* ---------- Charts ---------- */
+const tip = $('#tip');
+function showTip(ev, title, rows) {
+  tip.innerHTML = `<div class="t">${title}</div>` + rows.map(r => `<div class="r" style="--c:${r.c || 'transparent'}"><span>${r.k}</span><b>${r.v}</b></div>`).join('');
+  tip.hidden = false;
+  const x = ev.clientX, y = ev.clientY, w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x + 14)) + 'px';
+  tip.style.top = Math.max(8, Math.min(window.innerHeight - h - 8, y - h - 12)) + 'px';
+}
+const hideTip = () => { tip.hidden = true; };
+function niceMax(v, n = 4) { if (v <= 0) return { max: 1, step: 0.25 }; const raw = v / n, p = Math.pow(10, Math.floor(Math.log10(raw))); const st = [1, 2, 2.5, 5, 10].map(x => x * p).find(x => x >= raw); return { max: Math.ceil(v / st) * st, step: st }; }
+const css = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function frame(host, height, pad) {
+  host.innerHTML = ''; const W = Math.max(280, host.clientWidth || 600);
+  const svg = el('svg', { viewBox: `0 0 ${W} ${height}`, role: 'img' }, host);
+  return { svg, W, H: height, x0: pad.l, x1: W - pad.r, y0: pad.t, y1: height - pad.b };
+}
+function yAxis(f, max, step, unit) {
+  for (let v = 0; v <= max + 1e-9; v += step) {
+    const y = f.y1 - (v / max) * (f.y1 - f.y0);
+    el('line', { x1: f.x0, x2: f.x1, y1: y, y2: y, stroke: css('--line'), 'stroke-width': 1 }, f.svg);
+    const t = el('text', { x: f.x0 - 6, y: y + 4, 'text-anchor': 'end' }, f.svg); t.textContent = fmtN(v, step < 1 ? (step < 0.1 ? 2 : 1) : 0) + (v === max ? unit : '');
+  }
+}
+function barPath(x, y, w, h, r) { r = Math.min(r, w / 2, h); return `M${x},${y + h}V${y + r}Q${x},${y} ${x + r},${y}H${x + w - r}Q${x + w},${y} ${x + w},${y + r}V${y + h}Z`; }
+
+function chartMonthly(host, months) {
+  const f = frame(host, 260, { l: 52, r: 8, t: 12, b: 26 });
+  const vals = months.flatMap(m => [m.solar, m.load]); const { max, step } = niceMax(Math.max(...vals));
+  yAxis(f, max, step, ' kWh');
+  const gw = (f.x1 - f.x0) / 12, bw = Math.max(4, Math.min(22, gw * 0.34));
+  months.forEach((M, i) => {
+    const cx = f.x0 + gw * i + gw / 2;
+    [[M.solar, '--s-solar', -1], [M.load, '--s-home', 1]].forEach(([v, c, s]) => {
+      const h = (v / max) * (f.y1 - f.y0), x = s < 0 ? cx - bw - 1 : cx + 1;
+      el('path', { d: barPath(x, f.y1 - h, bw, h, 4), fill: css(c) }, f.svg);
+    });
+    const t = el('text', { x: cx, y: f.H - 8, 'text-anchor': 'middle' }, f.svg); t.textContent = gw < 34 ? MONTHS[i][0] : MONTHS[i];
+    const hit = el('rect', { x: f.x0 + gw * i, y: f.y0, width: gw, height: f.y1 - f.y0, fill: 'transparent' }, f.svg);
+    hit.addEventListener('pointermove', e => showTip(e, MONTHS[i], [
+      { k: 'Solar produced', v: fmtN(M.solar) + ' kWh', c: css('--s-solar') }, { k: 'Home + Rivian', v: fmtN(M.load) + ' kWh', c: css('--s-home') },
+      { k: 'Sent to grid', v: fmtN(M.exp) + ' kWh' }, { k: 'Bought from grid', v: fmtN(M.imp) + ' kWh' }]));
+    hit.addEventListener('pointerleave', hideTip);
+  });
+}
+
+function chartDay(host, m, plan) {
+  const f = frame(host, 280, { l: 44, r: 10, t: 18, b: 26 });
+  const prof = DATA; const ev = evProfile(S.evStart);
+  const avg = arr => arr[0].map((v, h) => (v * 5 + arr[1][h] * 2) / 7);
+  const sol = avg(prof.solar[m]), home = avg(prof.home[m]);
+  const series = [{ k: 'Solar', c: '--s-solar', v: sol }, { k: 'Home (no car)', c: '--s-home', v: home }, { k: 'Rivian charging', c: '--s-ev', v: ev }];
+  const { max, step } = niceMax(Math.max(...sol, ...home, ...ev) * 1.05);
+  const X = h => f.x0 + (h / 24) * (f.x1 - f.x0), Y = v => f.y1 - (v / max) * (f.y1 - f.y0);
+  const kind = PLANS[plan].kind;
+  for (let h = 0; h < 24; h++) { const p = PERIODS[kind](h, 3); if (p !== 'off') el('rect', { x: X(h), y: f.y0, width: X(1) - X(0), height: f.y1 - f.y0, fill: css(p === 'peak' ? '--band-peak' : '--band-part') }, f.svg); }
+  yAxis(f, max, step, ' kWh');
+  [0, 6, 12, 18, 24].forEach(h => { const t = el('text', { x: X(h), y: f.H - 8, 'text-anchor': h === 0 ? 'start' : h === 24 ? 'end' : 'middle' }, f.svg); t.textContent = h === 24 ? '12a' : hourLbl(h).replace(' ', '').replace('m', ''); });
+  series.forEach(s => {
+    const pts = s.v.map((v, h) => `${X(h + 0.5)},${Y(v)}`).join(' ');
+    el('polyline', { points: pts, fill: 'none', stroke: css(s.c), 'stroke-width': 2, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, f.svg);
+  });
+  const cross = el('line', { y1: f.y0, y2: f.y1, stroke: css('--ink-2'), 'stroke-width': 1, opacity: 0 }, f.svg);
+  const dots = series.map(s => el('circle', { r: 4.5, fill: css(s.c), stroke: css('--surface'), 'stroke-width': 2, opacity: 0 }, f.svg));
+  const hit = el('rect', { x: f.x0, y: f.y0, width: f.x1 - f.x0, height: f.y1 - f.y0, fill: 'transparent' }, f.svg);
+  hit.addEventListener('pointermove', e => {
+    const r = f.svg.getBoundingClientRect(), sx = (e.clientX - r.left) * (f.W / r.width);
+    const h = Math.max(0, Math.min(23, Math.floor((sx - f.x0) / (X(1) - X(0)))));
+    cross.setAttribute('x1', X(h + 0.5)); cross.setAttribute('x2', X(h + 0.5)); cross.setAttribute('opacity', 0.6);
+    dots.forEach((d, i) => { d.setAttribute('cx', X(h + 0.5)); d.setAttribute('cy', Y(series[i].v[h])); d.setAttribute('opacity', 1); });
+    const per = PERIODS[kind](h, 3), price = S.rates[plan][isSummer(m) ? 's' : 'w'][per];
+    showTip(e, `${hourLbl(h)}–${hourLbl(h + 1)} · ${per === 'off' ? 'off-peak' : per === 'part' ? 'part-peak' : 'peak'} ${(price * 100).toFixed(1)}¢`, series.map(s => ({ k: s.k, v: s.v[h].toFixed(2) + ' kWh', c: css(s.c) })));
+  });
+  hit.addEventListener('pointerleave', () => { hideTip(); cross.setAttribute('opacity', 0); dots.forEach(d => d.setAttribute('opacity', 0)); });
+}
+
+function chartDaily(host, daily) {
+  const f = frame(host, 210, { l: 44, r: 8, t: 10, b: 24 });
+  const exp = daily.map(x => estSolarDay(+x.d.slice(5, 7) - 1, S.sysKw));
+  const { max, step } = niceMax(Math.max(...daily.map(x => x.kwh), ...exp) * 1.05);
+  yAxis(f, max, step, ' kWh');
+  const n = daily.length, gw = (f.x1 - f.x0) / n, bw = Math.max(1.5, gw - 2);
+  const Y = v => f.y1 - (v / max) * (f.y1 - f.y0);
+  daily.forEach((x, i) => {
+    const h = f.y1 - Y(x.kwh);
+    el('path', { d: barPath(f.x0 + gw * i + (gw - bw) / 2, Y(x.kwh), bw, h, Math.min(3, bw / 2)), fill: css('--s-solar') }, f.svg);
+    const hit = el('rect', { x: f.x0 + gw * i, y: f.y0, width: gw, height: f.y1 - f.y0, fill: 'transparent' }, f.svg);
+    const dd = new Date(x.d + 'T12:00:00');
+    hit.addEventListener('pointermove', e => showTip(e, dd.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }), [
+      { k: 'Produced', v: x.kwh.toFixed(1) + ' kWh', c: css('--s-solar') }, { k: 'Expected', v: exp[i].toFixed(1) + ' kWh' }, { k: 'Of expected', v: Math.round(x.kwh / exp[i] * 100) + '%' }]));
+    hit.addEventListener('pointerleave', hideTip);
+  });
+  el('polyline', { points: exp.map((v, i) => `${f.x0 + gw * i + gw / 2},${Y(v)}`).join(' '), fill: 'none', stroke: css('--ink-2'), 'stroke-width': 2, 'stroke-dasharray': '5 4', 'pointer-events': 'none' }, f.svg);
+  [0, Math.floor(n / 2), n - 1].forEach((i, j) => { const t = el('text', { x: f.x0 + gw * i + gw / 2, y: f.H - 6, 'text-anchor': j === 0 ? 'start' : j === 2 ? 'end' : 'middle' }, f.svg); t.textContent = new Date(daily[i].d + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); });
+}
+
+function chartHBars(host, items, best) {
+  const rowH = 38, f = frame(host, items.length * rowH + 24, { l: 78, r: 70, t: 4, b: 20 });
+  const { max, step } = niceMax(Math.max(...items.map(i => i.v)));
+  const X = v => f.x0 + (v / max) * (f.x1 - f.x0);
+  for (let v = 0; v <= max + 1e-9; v += step) { el('line', { x1: X(v), x2: X(v), y1: f.y0, y2: f.y1, stroke: css('--line') }, f.svg); const t = el('text', { x: X(v), y: f.H - 4, 'text-anchor': 'middle' }, f.svg); t.textContent = fmt$(v); }
+  items.forEach((it, i) => {
+    const y = f.y0 + i * rowH + 8, h = rowH - 16, w = X(it.v) - f.x0;
+    const t = el('text', { x: f.x0 - 8, y: y + h / 2 + 4, 'text-anchor': 'end', class: it.k === best ? 'strong' : 'lbl' }, f.svg); t.textContent = it.k;
+    el('path', { d: `M${f.x0},${y}H${f.x0 + w - 4}Q${f.x0 + w},${y} ${f.x0 + w},${y + 4}V${y + h - 4}Q${f.x0 + w},${y + h} ${f.x0 + w - 4},${y + h}H${f.x0}Z`, fill: css('--s-home'), opacity: it.k === best ? 1 : 0.45 }, f.svg);
+    const vt = el('text', { x: f.x0 + w + 6, y: y + h / 2 + 4, class: it.k === best ? 'strong' : 'lbl' }, f.svg); vt.textContent = fmt$(it.v);
+    const hit = el('rect', { x: 0, y: y - 6, width: f.W, height: rowH, fill: 'transparent' }, f.svg);
+    hit.addEventListener('pointermove', e => showTip(e, it.k, it.tip)); hit.addEventListener('pointerleave', hideTip);
+  });
+}
+
+function chartEv(host, costs, bestH, curH) {
+  const f = frame(host, 230, { l: 44, r: 8, t: 22, b: 26 });
+  const { max, step } = niceMax(Math.max(...costs.filter(c => c != null)));
+  yAxis(f, max, step, '');
+  const gw = (f.x1 - f.x0) / 24, bw = Math.max(4, gw - 3), Y = v => f.y1 - (v / max) * (f.y1 - f.y0);
+  costs.forEach((c, h) => {
+    if (c == null) return;
+    const x = f.x0 + gw * h + (gw - bw) / 2;
+    el('path', { d: barPath(x, Y(c), bw, Math.max(0.5, f.y1 - Y(c)), 4), fill: css('--s-ev'), opacity: h === bestH ? 1 : 0.42 }, f.svg);
+    if (h === bestH || h === curH) { const t = el('text', { x: x + bw / 2, y: Y(c) - 6, 'text-anchor': 'middle', class: 'strong' }, f.svg); t.textContent = (h === bestH ? 'Best ' : 'Now ') + fmt$(c, 2); }
+    const hit = el('rect', { x: f.x0 + gw * h, y: f.y0, width: gw, height: f.y1 - f.y0, fill: 'transparent' }, f.svg);
+    hit.addEventListener('pointermove', e => showTip(e, 'Start at ' + hourLbl(h), [{ k: 'Per night', v: fmt$(c, 2), c: css('--s-ev') }, { k: 'Per month', v: fmt$(c * S.evNights * 4.35) }]));
+    hit.addEventListener('pointerleave', hideTip);
+  });
+  [0, 6, 12, 18, 23].forEach(h => { const t = el('text', { x: f.x0 + gw * h + gw / 2, y: f.H - 8, 'text-anchor': 'middle' }, f.svg); t.textContent = hourLbl(h).replace(' ', ''); });
+}
+
+/* ---------- Render ---------- */
+let R = null; // cached results
+function compute() {
+  const nem = S.nem;
+  const ranked = bestPlan(nem, DATA, 1, null);
+  const curPlan = allowedPlans(nem).includes(S.plan) ? S.plan : ranked[0].plan;
+  const current = simulate({ plan: curPlan, nem, data: DATA, solarScale: 1, evStart: S.evStart });
+  const noEv = Object.fromEntries(allowedPlans(nem).map(p => [p, simulate({ plan: p, nem, data: DATA, solarScale: 1, evStart: null }).total]));
+  R = { nem, ranked, curPlan, current, noEv, best: ranked[0] };
+}
+
+function renderOverview() {
+  const { current, best, curPlan } = R, mo = current.months;
+  const solarY = mo.reduce((a, m) => a + m.solar, 0), loadY = mo.reduce((a, m) => a + m.load, 0);
+  const selfUse = mo.reduce((a, m) => a + (m.solar - m.exp), 0);
+  const save = current.total - best.r.total;
+  $('#ovStats').innerHTML = [
+    ['Yearly bill now', fmt$(current.total), `on ${curPlan}, about ${fmt$(current.total / 12)}/mo`],
+    ['Best plan', fmt$(best.r.total), save > 5 ? `${best.plan}, saves ${fmt$(save)}/yr` : best.plan === curPlan ? `${best.plan}, you're already on the cheapest plan` : `${best.plan} and ${curPlan} cost about the same`],
+    ['Solar per year', fmtN(solarY) + ' <small>kWh</small>', `${fmtN(solarY / Math.max(S.sysKw, 0.1))} kWh per kW · covers ${Math.round(solarY / loadY * 100)}% of use`],
+    ['Used at home', fmtN(loadY) + ' <small>kWh</small>', `${Math.round(selfUse / solarY * 100)}% of your solar is used on the spot`],
+  ].map(([l, v, d]) => `<div class="stat"><div class="eyebrow">${l}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join('');
+
+  // today
+  const now = new Date(), m = now.getMonth(), dow = now.getDay(), hNow = now.getHours();
+  const kind = PLANS[curPlan].kind, pr = S.rates[curPlan][isSummer(m) ? 's' : 'w'];
+  $('#todayPlan').textContent = curPlan + (isSummer(m) ? ' · summer prices' : ' · winter prices');
+  const perNow = PERIODS[kind](hNow, dow);
+  let nextH = hNow; while (PERIODS[kind](nextH % 24, dow) === perNow && nextH < hNow + 24) nextH++;
+  const pname = p => p === 'off' ? 'Off-peak' : p === 'part' ? 'Part-peak' : 'Peak';
+  $('#nowLine').textContent = `Right now: ${pname(perNow)} at ${(pr[perNow] * 100).toFixed(1)}¢/kWh until ${hourLbl(nextH)}`;
+  $('#timeline').innerHTML = Array.from({ length: 24 }, (_, h) => { const p = PERIODS[kind](h, dow); return `<div class="p-${p}${h === hNow ? ' now' : ''}" title="${hourLbl(h)}: ${pname(p)} ${(pr[p] * 100).toFixed(1)}¢"></div>`; }).join('');
+  const sol = DATA.solar[m][0]; const sunH = sol.map((v, h) => [v, h]).filter(x => x[0] > Math.max(...sol) * 0.55).map(x => x[1]);
+  const evBest = R.ranked.find(r => r.plan === curPlan) || best;
+  const peakH = Array.from({ length: 24 }, (_, h) => h).filter(h => PERIODS[kind](h, dow) === 'peak');
+  const items = [];
+  if (sunH.length) items.push([`${hourLbl(sunH[0])}–${hourLbl(sunH[sunH.length - 1] + 1)}`, 'Run the dishwasher, laundry, dryer and pool pump now. Your panels are covering it.']);
+  if (peakH.length) items.push([`${hourLbl(peakH[0])}–${hourLbl(peakH[peakH.length - 1] + 1)}`, `Peak pricing. Pre-cool or pre-heat the house before ${hourLbl(peakH[0])}, then let the thermostat drift a few degrees.`]);
+  items.push([hourLbl(evBest.h), `Have the Rivian start charging. That's the cheapest start on ${curPlan} for about ${fmtN(evKwhNight())} kWh a night.`]);
+  $('#todo').innerHTML = items.map(([w, t]) => `<li><span class="when">${w}</span><span>${t}</span></li>`).join('');
+
+  // performance
+  const daily = DATA.daily;
+  if (daily && daily.length) {
+    const last = daily.slice(-30); const act = last.reduce((a, x) => a + x.kwh, 0), exp = last.reduce((a, x) => a + estSolarDay(+x.d.slice(5, 7) - 1, S.sysKw), 0);
+    const pct = act / exp * 100;
+    const [cls, lbl] = pct >= 88 ? ['good', 'Working as expected'] : pct >= 72 ? ['warn', 'A little low'] : ['crit', 'Underperforming'];
+    $('#perfChip').innerHTML = `<span class="chip ${cls}">${lbl}</span>`;
+    const lowDays = last.filter(x => x.kwh < 0.5 * estSolarDay(+x.d.slice(5, 7) - 1, S.sysKw)).length;
+    $('#perfText').textContent = `Last 30 days: ${fmtN(act)} kWh, ${Math.round(pct)}% of what a ${S.sysKw} kW system typically makes. ` +
+      (cls === 'good' ? `${lowDays ? lowDays + ' cloudy day' + (lowDays > 1 ? 's' : '') + ' dipped low, which is normal.' : 'No unusual dips.'}` :
+       cls === 'warn' ? 'Could be weather. If skies were clear, rinse the panels and check for new shade from trees.' :
+       'If the weather was decent, check your inverter app for errors or offline panels and call your installer.');
+    chartDaily($('#chDaily'), daily);
+  } else {
+    $('#perfChip').innerHTML = '<span class="chip info">Needs a solar file</span>';
+    $('#perfText').textContent = 'Load a production export from your inverter app under Your data & setup to compare each day with what your system should make.';
+    $('#chDaily').innerHTML = '';
+  }
+  chartMonthly($('#chMonthly'), current.months);
+  chartDay($('#chDay'), viewMonth, curPlan);
+}
+
+function renderPlans() {
+  const { ranked, current, curPlan, best, nem } = R;
+  const save = current.total - best.r.total;
+  $('#planVerdict').innerHTML = save > 20
+    ? `<span class="eyebrow">Recommendation</span><div class="big">Switch to ${best.plan} and set the Rivian to start at ${hourLbl(best.h)}. That saves about ${fmt$(save)} a year.</div><p class="small">${PLANS[best.plan].blurb} You can change plans at pge.com → Rate Plans. As a solar customer, a switch is free and takes effect on your next billing cycle.</p>`
+    : `<span class="eyebrow">Recommendation</span><div class="big">Stay on ${curPlan}. ${save < 1 ? "It's the cheapest option for you." : `It's within ${fmt$(save)} a year of the cheapest option.`}</div><p class="small">${PLANS[curPlan].blurb}</p>`;
+  $('#planNemNote').textContent = nem === 'NBT' ? 'Net Billing customers can only use E-ELEC or EV2-A.' : 'NEM 2: exports are credited at nearly the full retail price.';
+  chartHBars($('#chPlans'), ranked.map(r => ({ k: r.plan, v: r.r.total, tip: [{ k: 'Yearly', v: fmt$(r.r.total) }, { k: 'Per month', v: fmt$(r.r.total / 12) }, { k: 'Rivian start', v: hourLbl(r.h) }] })), best.plan);
+  $('#planTable').innerHTML = `<tr><th>Plan</th><th class="num">Per year</th><th class="num">Per month</th><th class="num">Rivian charging / yr</th><th>Best start</th><th>Notes</th></tr>` +
+    ranked.map(r => { const evc = r.r.total - R.noEv[r.plan]; return `<tr class="${r.plan === best.plan ? 'best' : ''}"><td><b>${r.plan}</b>${r.plan === curPlan ? ' <span class="small">(you)</span>' : ''}</td><td class="num">${fmt$(r.r.total)}</td><td class="num">${fmt$(r.r.total / 12)}</td><td class="num">${fmt$(evc)}</td><td>${hourLbl(r.h)}</td><td class="small">${r.r.lost > 1 ? 'Makes more credit than you use; ' + fmt$(r.r.lost) + ' unused at true-up' : PLANS[r.plan].blurb}</td></tr>`; }).join('');
+  const bm = best.r.months;
+  $('#budgetText').textContent = `On ${best.plan}, your total for the year is about ${fmt$(best.r.total)}. Solar customers settle up once a year at true-up: summer credits pay for winter usage. Setting aside ${fmt$(best.r.total / 12)} a month covers it.`;
+  let run = 0;
+  $('#monthTable').innerHTML = `<tr><th>Month</th><th class="num">Solar kWh</th><th class="num">Used kWh</th><th class="num">Energy charges</th><th class="num">Base charge</th><th class="num">Running true-up balance</th></tr>` +
+    bm.map((M, i) => { run += M.energy; return `<tr><td>${MONTHS[i]}</td><td class="num">${fmtN(M.solar)}</td><td class="num">${fmtN(M.load)}</td><td class="num">${fmt$(M.energy)}</td><td class="num">${fmt$(M.base)}</td><td class="num">${fmt$(run)}</td></tr>`; }).join('');
+}
+
+function renderEv() {
+  const plans = allowedPlans(R.nem);
+  const sel = $('#evPlan'); const want = sel.value && plans.includes(sel.value) ? sel.value : R.best.plan;
+  sel.innerHTML = plans.map(p => `<option ${p === want ? 'selected' : ''}>${p}</option>`).join('');
+  $('#evPlanName').textContent = want;
+  const base = R.noEv[want];
+  const nightsYr = S.evNights * 52.14;
+  const okH = evStarts();
+  const costs = Array.from({ length: 24 }, (_, h) => !okH.includes(h) ? null : (simulate({ plan: want, nem: R.nem, data: DATA, solarScale: 1, evStart: h }).total - base) / Math.max(nightsYr, 1));
+  const bestH = okH.reduce((b, h) => costs[h] < costs[b] - 0.005 ? h : b, okH[0]);
+  const curOnCur = (R.current.total - R.noEv[R.curPlan]) / Math.max(nightsYr, 1);
+  const kwh = evKwhNight(), hrs = kwh / S.evKw;
+  $('#evLede').textContent = `About ${fmtN(kwh, 1)} kWh a night (${S.evMiles} miles at ${S.evEff} mi/kWh plus charging losses), which takes ${hrs.toFixed(1)} hours on your ${S.evKw} kW charger.`;
+  const bestCostCur = R.ranked.find(r => r.plan === R.curPlan);
+  $('#evStats').innerHTML = [
+    ['Now', fmt$(curOnCur, 2) + ' <small>/night</small>', `${R.curPlan}, starting ${hourLbl(S.evStart)} · ${fmt$(curOnCur * nightsYr)}/yr`],
+    ['Best on ' + want, fmt$(costs[bestH], 2) + ' <small>/night</small>', `start ${hourLbl(bestH)} · ${fmt$(costs[bestH] * nightsYr)}/yr`],
+    ['Gas equivalent', fmt$(S.evMiles / 20 * 4.9, 2) + ' <small>/day</small>', 'a 20 mpg SUV at $4.90/gal'],
+  ].map(([l, v, d]) => `<div class="stat"><div class="eyebrow">${l}</div><div class="v">${v}</div><div class="d">${d}</div></div>`).join('');
+  chartEv($('#chEv'), costs, bestH, want === R.curPlan ? S.evStart : -1);
+  const endH = Math.ceil(bestH + hrs) % 24;
+  $('#evSteps').innerHTML = [
+    'Open the Rivian app and select your vehicle, then go to <b>Charging</b> → <b>Charging schedule</b>.',
+    `Add a schedule for your home location: start <b>${hourLbl(bestH)}</b>, end <b>${hourLbl(PLANS[want].kind === 'ev' ? 15 : 16)}</b>, every day.`,
+    `It should finish around ${hourLbl(endH)}. Leave the charge limit at 70–80% for daily driving and raise it only before road trips.`,
+    `If your charger has its own app (ChargePoint, Wallbox, Emporia), turn its schedule off so the two don't fight.`,
+    bestCostCur && bestCostCur.h !== S.evStart ? `Once it's set, change “Car starts charging now at” under Your data & setup to ${hourLbl(bestH)} so this page tracks the new habit.` : 'Your current start time already matches the best one.',
+  ].map(s => `<li>${s}</li>`).join('');
+}
+
+function renderUpgrades() {
+  const nem = R.nem, incF = 1 - S.inc / 100, esc = S.esc / 100;
+  const batt = { kwh: S.b_kwh, kw: S.b_kw, exportHigh: S.b_export };
+  const addScale = 1 + S.p_kw / Math.max(S.sysKw, 0.1);
+  const limit = Math.max(1, 0.1 * S.sysKw);
+  const panelNem = (nem === 'NEM2' && S.p_kw > limit) ? 'NBT' : nem;
+  const base = R.best.r.total;
+  const scen = [
+    { k: 'Battery', d: `${S.b_kwh} kWh / ${S.b_kw} kW`, cost: S.b_cost * incF, b: bestPlan(nem, DATA, 1, batt)[0], nem },
+    { k: 'More panels', d: `+${S.p_kw} kW${panelNem !== nem ? ', moves you to Net Billing' : ''}`, cost: S.p_kw * 1000 * S.p_cpw * incF, b: bestPlan(panelNem, DATA, addScale, null)[0], nem: panelNem },
+    { k: 'Both', d: `+${S.p_kw} kW and ${S.b_kwh} kWh`, cost: (S.b_cost + S.p_kw * 1000 * S.p_cpw) * incF, b: bestPlan(panelNem, DATA, addScale, batt)[0], nem: panelNem },
+  ];
+  if (panelNem !== nem) scen.splice(2, 0, { k: 'Small add-on', d: `+${limit.toFixed(1)} kW, keeps NEM 2`, cost: limit * 1000 * S.p_cpw * incF, b: bestPlan(nem, DATA, 1 + limit / Math.max(S.sysKw, 0.1), null)[0], nem });
+  scen.forEach(s => {
+    s.save = base - s.b.r.total; s.payback = s.save > 0 ? s.cost / s.save : Infinity;
+    let cum = -s.cost; for (let y = 0; y < 15; y++) cum += s.save * Math.pow(1 + esc, y) * Math.pow(0.995, y); s.net15 = cum;
+  });
+  const good = scen.filter(s => s.payback < 12).sort((a, b) => b.net15 - a.net15);
+  const v = good[0];
+  $('#upVerdict').innerHTML = v
+    ? `<span class="eyebrow">Recommendation</span><div class="big">${({ 'Battery': 'A battery', 'More panels': 'More panels', 'Small add-on': `A small ${limit.toFixed(1)} kW panel add-on`, 'Both': 'Panels plus a battery' })[v.k]} pays for itself in about ${v.payback.toFixed(1)} years.</div><p class="small">That's net ${fmt$(v.net15)} over 15 years with ${S.esc}% yearly rate increases. Get at least two installer quotes and plug in the real prices below.</p>`
+    : `<span class="eyebrow">Recommendation</span><div class="big">Neither upgrade pays back fast enough to recommend right now.</div><p class="small">With your usage ${nem === 'NEM2' ? 'and NEM 2 credits, the grid already acts like a free battery, so a real battery adds little savings' : 'and these prices'}, the cheaper wins are the rate plan and Rivian charging time.</p>`;
+  $('#upOpts').innerHTML = scen.map(s => {
+    const [cls, lbl] = s.payback < 9 ? ['good', 'Strong'] : s.payback < 14 ? ['warn', 'Marginal'] : ['crit', 'Weak'];
+    return `<div class="panel opt"><div class="row" style="justify-content:space-between"><h3>${s.k}</h3><span class="chip ${cls}">${lbl}</span></div><span class="small">${s.d}</span>
+      <dl><dt>Upfront after incentives</dt><dd>${fmt$(s.cost)}</dd><dt>New yearly bill</dt><dd>${fmt$(s.b.r.total)}</dd><dt>Saves per year</dt><dd>${fmt$(s.save)}</dd>
+      <dt>Simple payback</dt><dd>${isFinite(s.payback) ? s.payback.toFixed(1) + ' yrs' : 'never'}</dd><dt>15-year net</dt><dd>${fmt$(s.net15)}</dd><dt>Best plan after</dt><dd>${s.b.plan}</dd></dl></div>`;
+  }).join('');
+  const notes = [];
+  if (nem === 'NEM2') notes.push(`<b>Protect your NEM 2 status.</b> You can usually add only about ${limit.toFixed(1)} kW (the larger of 1 kW or 10% of your system) without being moved to Net Billing for the whole system. Bigger additions are modeled under Net Billing here.`);
+  if (nem === 'NEM2') notes.push('<b>Why a battery saves less on NEM 2.</b> Your exports already earn close to full retail credit, so storing that energy for the evening gains only the peak-vs-off-peak gap. Backup during outages is the main reason to buy one.');
+  if (nem === 'NBT') notes.push('<b>Why a battery helps on Net Billing.</b> Midday exports earn only a few cents per kWh, while evening power costs 40–50¢. Storing solar for 4–9 pm is where most of the value is.');
+  notes.push('<b>Incentives.</b> The 30% federal tax credit for home solar and batteries ended for systems finished after December 31, 2025. Check California’s SGIP battery rebate (larger for medically vulnerable or fire-zone households) and set the rebate % above.');
+  notes.push('<b>Your Rivian is a big battery too.</b> If Rivian enables vehicle-to-home on your model with a bidirectional charger, it could cover evening peak hours without buying a home battery. Revisit this before you buy.');
+  $('#upNotes').innerHTML = '<h3>Things that change the answer</h3>' + notes.map(n => `<p class="small">${n}</p>`).join('');
+}
+
+function renderSetup() {
+  const plans = Object.keys(PLANS);
+  $('#curPlan').innerHTML = plans.map(p => `<option ${p === S.plan ? 'selected' : ''}>${p}</option>`).join('');
+  ['evStart', 'evHome', 'evLeave'].forEach(k => { $('#' + k).innerHTML = Array.from({ length: 24 }, (_, h) => `<option value="${h}" ${h === S[k] ? 'selected' : ''}>${hourLbl(h)}</option>`).join(''); });
+  ['sysKw', 'evMiles', 'evEff', 'evNights', 'evKw', 'baseDay', 'blCredit', 'blDay', 'nbc', 'b_kwh', 'b_kw', 'b_cost', 'p_kw', 'p_cpw', 'inc', 'esc'].forEach(k => { const e = document.getElementById(k); if (e && document.activeElement !== e) e.value = S[k]; });
+  $('#nem').value = S.nem; $('#b_export').checked = !!S.b_export;
+  const cols = [['s', 'peak', 'Summer peak'], ['s', 'part', 'Summer part-peak'], ['s', 'off', 'Summer off-peak'], ['w', 'peak', 'Winter peak'], ['w', 'part', 'Winter part-peak'], ['w', 'off', 'Winter off-peak']];
+  if (!$('#rateTable').dataset.built) {
+    $('#rateTable').innerHTML = `<tr><th>Plan</th>${cols.map(c => `<th class="num">${c[2]}</th>`).join('')}</tr>` + plans.map(p => `<tr><td><b>${p}</b></td>${cols.map(([se, pe]) => {
+      const v = S.rates[p][se][pe]; return `<td class="num">${v == null ? '<span class="small">—</span>' : `<input type="number" step="0.001" min="0" style="width:84px" id="r_${p}_${se}_${pe}" value="${v}">`}</td>`; }).join('')}</tr>`).join('');
+    $('#rateTable').dataset.built = '1';
+  }
+  const s = DATA.src;
+  $('#dataBadge').textContent = s.demo ? 'Example data' : `Your data · ${s.pge ? s.pgeMonths + ' mo PG&E' : 'no PG&E file'} · ${s.solarFile ? s.solarDays + ' days solar' : 'solar estimated'}`;
+  $('#demoBanner').hidden = !s.demo;
+}
+
+function renderAll() {
+  compute(); renderSetup(); renderOverview(); renderPlans(); renderUpgrades(); renderEv();
+}
+
+/* ---------- Routing ---------- */
+const VIEWS = ['overview', 'plans', 'ev', 'upgrades', 'setup'];
+function route() {
+  const v = VIEWS.includes(location.hash.slice(1)) ? location.hash.slice(1) : 'overview';
+  VIEWS.forEach(n => { $('#v-' + n).hidden = n !== v; });
+  document.querySelectorAll('nav.tabs a').forEach(a => { if (a.dataset.view === v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+  if (R) { if (v === 'overview') renderOverview(); if (v === 'plans') renderPlans(); if (v === 'ev') renderEv(); if (v === 'upgrades') renderUpgrades(); }
+}
+window.addEventListener('hashchange', route);
+document.querySelectorAll('[data-go]').forEach(b => b.addEventListener('click', () => { location.hash = b.dataset.go; }));
+
+/* ---------- Inputs ---------- */
+let pgeHours = null, solarParsed = null, t;
+function saveSettings() { const ok = store.set('sl_settings', S); $('#saveNote').textContent = ok ? 'Saved in this browser.' : ''; }
+function debounced() { clearTimeout(t); t = setTimeout(() => { if (!DATA.src.demo && (pgeHours || solarParsed)) DATA = buildFromFiles(pgeHours, solarParsed); else if (DATA.src.demo) DATA = demoData(); saveSettings(); renderAll(); route(); }, 250); }
+document.addEventListener('input', e => {
+  const id = e.target.id; if (!id) return;
+  if (id.startsWith('r_')) { const [, p, se, pe] = id.split('_'); const v = parseFloat(e.target.value); if (isFinite(v)) { S.rates[p][se][pe] = v; debounced(); } return; }
+  if (id in DEFAULTS && typeof DEFAULTS[id] === 'number') { const v = parseFloat(e.target.value); if (isFinite(v)) { S[id] = v; debounced(); } }
+});
+document.addEventListener('change', e => {
+  const id = e.target.id;
+  if (id === 'curPlan') { S.plan = e.target.value; debounced(); }
+  if (id === 'nem') { S.nem = e.target.value; debounced(); }
+  if (id === 'evStart' || id === 'evHome' || id === 'evLeave') { S[id] = +e.target.value; debounced(); }
+  if (id === 'b_export') { S.b_export = e.target.checked; debounced(); }
+  if (id === 'evPlan') renderEv();
+  if (id === 'dayMonth') { viewMonth = +e.target.value; chartDay($('#chDay'), viewMonth, R.curPlan); }
+});
+$('#dayMonth').innerHTML = MONTHS.map((m, i) => `<option value="${i}" ${i === viewMonth ? 'selected' : ''}>${m}</option>`).join('');
+
+function readFile(file, kind) {
+  const status = kind === 'pge' ? $('#pgeStatus') : $('#solarStatus');
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      if (kind === 'pge') { pgeHours = parsePge(String(r.result)); status.innerHTML = `<span class="chip good">Loaded</span> ${fmtN(pgeHours.size)} hourly readings from ${file.name}`; }
+      else { solarParsed = parseSolar(String(r.result)); status.innerHTML = `<span class="chip good">Loaded</span> ${solarParsed.days.size} days${solarParsed.hasTime ? ', hourly detail' : ' (daily totals)'} from ${file.name}`; }
+      DATA = buildFromFiles(pgeHours, solarParsed);
+      if (!store.set('sl_data', DATA)) $('#saveNote').textContent = 'Couldn’t save in this browser; reload will reset to examples.';
+      renderAll(); route();
+    } catch (err) { status.innerHTML = `<span class="chip crit">Couldn’t read it</span> ${err.message}`; }
+  };
+  r.readAsText(file);
+}
+[['filePge', 'dropPge', 'pge'], ['fileSolar', 'dropSolar', 'solar']].forEach(([fi, dz, kind]) => {
+  document.getElementById(fi).addEventListener('change', e => e.target.files[0] && readFile(e.target.files[0], kind));
+  const z = document.getElementById(dz);
+  z.addEventListener('dragover', e => { e.preventDefault(); z.classList.add('over'); });
+  z.addEventListener('dragleave', () => z.classList.remove('over'));
+  z.addEventListener('drop', e => { e.preventDefault(); z.classList.remove('over'); const f = e.dataTransfer.files[0]; if (f) readFile(f, kind); });
+});
+$('#resetData').addEventListener('click', () => { store.del('sl_data'); pgeHours = solarParsed = null; DATA = demoData(); $('#pgeStatus').textContent = $('#solarStatus').textContent = 'No file loaded.'; renderAll(); route(); });
+
+let rw; window.addEventListener('resize', () => { clearTimeout(rw); rw = setTimeout(route, 150); });
+const mq = matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener && mq.addEventListener('change', route);
+new MutationObserver(route).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+if (!DATA || !DATA.solar || !DATA.home) DATA = demoData();
+renderAll(); route();
+})();
+</script>
+</body></html>
