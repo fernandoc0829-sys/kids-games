@@ -267,7 +267,10 @@ convention and the game picks them up automatically, no code changes:
   `compsognathus-giant.webp`). Any species/stage without a file just keeps
   using the vector art — mix and match freely.
 - Background art: `assets/bg-<speciesId>.webp` (one per species/biome; tall
-  portrait images, roughly 9:16, work best).
+  portrait images, 420x1024, used on phones and tablets held upright) and
+  optionally `assets/bg-<speciesId>-wide.webp` (landscape, 1200x800, used when
+  the play area is wider than tall, e.g. a tablet in landscape). If a wide
+  image is missing the portrait one is used.
 
 Files in the repo are trimmed to the dinosaur, ≤640px, **WebP with a real
 transparent background**, and **all facing right** (the game mirrors them

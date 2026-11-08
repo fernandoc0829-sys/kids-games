@@ -768,28 +768,47 @@ function renderDinoVisual(sp, stage) {
     onload="this.previousElementSibling.style.display='none'; this.style.display='block';"></span>`;
 }
 
-// Same idea for backgrounds: try assets/bg-<id>.webp, fall back to the CSS scenery.
+// Same idea for backgrounds: try assets/bg-<id>.webp (tall portrait) or, when the play
+// area is wider than it is tall (tablet in landscape), assets/bg-<id>-wide.webp. Missing
+// wide art falls back to the portrait image; missing portrait falls back to the CSS scenery.
+let bgSpecies = null, bgShape = null;
 function applyBackgroundPhoto(sp) {
-  const img = new Image();
-  const show = () => {
-    playArea.style.backgroundImage = `url(assets/bg-${sp.id}.webp)`;
-    playArea.style.backgroundSize = "cover";
-    playArea.style.backgroundPosition = "center";
-    playArea.classList.add("has-photo-bg");
+  bgSpecies = sp;
+  const wide = playArea.clientWidth > playArea.clientHeight;
+  bgShape = wide ? "wide" : "tall";
+  const load = (url, onFail) => {
+    const img = new Image();
+    const show = () => {
+      if (bgSpecies !== sp) return; // species changed while loading
+      playArea.style.backgroundImage = `url(${url})`;
+      playArea.style.backgroundSize = "cover";
+      playArea.style.backgroundPosition = "center";
+      playArea.classList.add("has-photo-bg");
+    };
+    img.onload = () => {
+      // decode() ensures the browser has fully rasterized the bitmap before it's
+      // used as a CSS background, avoiding a visible checkerboard/placeholder
+      // flash on large images. Fall back to showing immediately if unsupported.
+      if (img.decode) img.decode().then(show).catch(show);
+      else show();
+    };
+    img.onerror = onFail;
+    img.src = url;
   };
-  img.onload = () => {
-    // decode() ensures the browser has fully rasterized the bitmap before it's
-    // used as a CSS background, avoiding a visible checkerboard/placeholder
-    // flash on large images. Fall back to showing immediately if unsupported.
-    if (img.decode) img.decode().then(show).catch(show);
-    else show();
-  };
-  img.onerror = () => {
+  const none = () => {
+    if (bgSpecies !== sp) return;
     playArea.style.backgroundImage = "";
     playArea.classList.remove("has-photo-bg");
   };
-  img.src = `assets/bg-${sp.id}.webp`;
+  const tall = () => load(`assets/bg-${sp.id}.webp`, none);
+  if (wide) load(`assets/bg-${sp.id}-wide.webp`, tall); else tall();
 }
+// Rotating a tablet (or resizing the window) can flip portrait <-> landscape: swap the image.
+window.addEventListener("resize", () => {
+  if (!bgSpecies) return;
+  const shape = playArea.clientWidth > playArea.clientHeight ? "wide" : "tall";
+  if (shape !== bgShape) applyBackgroundPhoto(bgSpecies);
+});
 
 const STATE_KEY = "dino-diet-state-v1";
 const PREVIEW_KEY = "dino-diet-preview";
