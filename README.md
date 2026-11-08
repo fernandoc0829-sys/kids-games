@@ -256,6 +256,24 @@ Progress (growth stage per dinosaur, which are unlocked, and the Dino-pedia)
 is saved to `localStorage`, so it's there when you come back — but it's
 local to that one device/browser for now.
 
+## Install on a tablet / work offline (PWA)
+
+Dino Diet is a Progressive Web App. Open it once while online, then:
+
+- **Fire tablet (Silk browser):** menu (⋮) → *Add to Home screen*. It opens
+  fullscreen like an app and works with no internet.
+- **Android Chrome / iOS Safari:** *Install app* / *Add to Home Screen*.
+
+The first visit downloads the game, all dinosaur art and backgrounds (about
+4 MB) into the device. After that it loads from the device; when online it
+quietly checks for updates. Fonts are cached after the first online visit
+(offline-first-visit falls back to a system font).
+
+**Developers:** `dino-diet/sw.js` has a `VERSION` constant. Bump it whenever
+`index.html` or anything in `assets/` changes so installed devices re-download.
+New species/stages must also be added to the lists at the top of `sw.js`.
+Service workers need HTTPS (or `localhost`); `file://` opens just skip offline mode.
+
 ## Adding real artwork (optional)
 
 By default every dinosaur and background is drawn with hand-coded SVG/CSS
