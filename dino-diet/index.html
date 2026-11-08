@@ -233,7 +233,7 @@
   #dino {
     position: absolute;
     left: 0; top: 0;
-    width: 120px; height: 120px;
+    width: 130px; height: 130px;
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: 5;
@@ -242,7 +242,7 @@
   }
   #dino svg, .dino-icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
   /* .dino-visual wraps the SVG fallback + an optional real photo, so any
-     species/stage can upgrade to real art (dino-diet/assets/<id>-<stage>.png)
+     species/stage can upgrade to real art (dino-diet/assets/<id>-<stage>.webp)
      without a code change — see renderDinoVisual(). */
   .dino-visual { position: relative; display: block; width: 100%; height: 100%; }
   .dino-visual .dino-photo {
@@ -251,10 +251,33 @@
   }
   /* Chomp/grow animate the whole visual (not individual SVG parts) so they
      work identically whether a species is showing vector art or a real photo. */
+  /* Idle bob uses the independent `translate` property and the facing flip uses
+     `transform`, on the inner art only, so both compose with the chomp/grow
+     animations above (which transform .dino-visual itself). Real art faces right. */
+  #dino .dino-photo, #dino svg { animation: idleBob 2.4s ease-in-out infinite; }
+  @keyframes idleBob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4%; } }
+  #dino.face-left .dino-photo, #dino.face-left svg { transform: scaleX(-1); }
   #dino.chomp .dino-visual { animation: chompBounce 0.18s ease; }
   @keyframes chompBounce { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(0.88, 1.14); } }
   #dino.grew .dino-visual { animation: growPop 0.7s ease; }
   @keyframes growPop { 0% { filter: brightness(1); transform: scale(1); } 35% { filter: brightness(1.6); transform: scale(1.3); } 100% { filter: brightness(1); transform: scale(1); } }
+
+  /* ---------- Preview mode ---------- */
+  .preview-bar {
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+    padding: 6px 12px;
+    background: #fff3d6; border-bottom: 2px solid var(--amber);
+    font-size: 0.78rem; font-weight: 800; color: #5a3900;
+    z-index: 10;
+  }
+  .preview-bar .preview-stages { display: flex; gap: 6px; flex: 1; }
+  .preview-bar button {
+    padding: 4px 10px; border-radius: 999px;
+    background: #fff; border: 2px solid var(--card-border);
+    font-size: 0.74rem; font-weight: 800;
+  }
+  .preview-bar button.active { background: var(--leaf); color: #fff; border-color: var(--leaf); }
+  .btn-secondary { background: #fff; color: var(--ink); border: 2px solid var(--card-border); box-shadow: 0 4px 0 var(--card-border); margin-top: 10px; }
 
   /* ---------- Growth burst ---------- */
   .growth-burst { position: absolute; left: 0; top: 0; pointer-events: none; z-index: 6; }
@@ -457,10 +480,16 @@
       <div class="growth-bar"><div class="growth-fill" id="growthFill"></div></div>
     </div>
     <button class="icon-btn" id="pediaBtn" aria-label="Dino-pedia">📖</button>
-    <button class="icon-btn" id="resetBtn" aria-label="Reset progress">⚙️</button>
+    <button class="icon-btn" id="settingsBtn" aria-label="Settings">⚙️</button>
   </header>
 
   <nav class="species-tabs" id="speciesTabs"></nav>
+
+  <div class="preview-bar" id="previewBar" hidden>
+    <span>Preview mode — progress isn't saved</span>
+    <span class="preview-stages" id="previewStages"></span>
+    <button id="previewExit">Exit</button>
+  </div>
 
   <main id="playArea" data-species="compsognathus">
     <div class="scenery" aria-hidden="true">
@@ -491,6 +520,17 @@
     <div class="pedia-grid" id="pediaGrid"></div>
     <div class="pedia-fact-box" id="pediaFactBox"></div>
     <button class="pedia-close" id="pediaClose">Close</button>
+  </div>
+</div>
+
+<!-- Settings -->
+<div class="backdrop" id="settingsBackdrop" hidden>
+  <div class="reveal-card">
+    <div class="reveal-name">Settings</div>
+    <div class="reveal-fact">Preview lets you look at every dinosaur at every growth stage without unlocking them. Nothing is saved while previewing.</div>
+    <button class="btn-primary" id="previewToggle">Preview all dinosaurs</button>
+    <button class="btn-primary btn-secondary" id="openReset">Reset all progress…</button>
+    <button class="pedia-close" id="settingsClose">Close</button>
   </div>
 </div>
 
@@ -526,7 +566,7 @@ const CONFIG = {
 
 const STAGE_ORDER = ["baby", "juvenile", "adult", "giant"];
 const STAGE_LABEL = { baby: "Baby", juvenile: "Juvenile", adult: "Adult", giant: "Giant" };
-const STAGE_SCALE = { baby: 0.4, juvenile: 0.7, adult: 1.05, giant: 1.55 };
+const STAGE_SCALE = { baby: 0.7, juvenile: 0.95, adult: 1.25, giant: 1.6 };
 const STAGE_FEATURE_SCALE = { baby: 0.5, juvenile: 0.75, adult: 1.0, giant: 1.1 };
 const STAGE_ALLOWED_SIZES = {
   baby: ["small"],
@@ -681,21 +721,21 @@ function renderDinoMarkup(sp, stage) {
   return `<svg viewBox="0 0 200 200">${defs}${layers.back.join("")}${body}${head}${layers.front.join("")}${eyes}${mouth}${layers.mouth.join("")}</svg>`;
 }
 
-// Wraps the SVG fallback with an optional real photo. If dino-diet/assets/<id>-<stage>.png
+// Wraps the SVG fallback with an optional real photo. If dino-diet/assets/<id>-<stage>.webp
 // exists it silently replaces the vector art (there and only there); otherwise the SVG
 // stays visible. No manifest needed — presence is detected by trying to load the file.
 function renderDinoVisual(sp, stage) {
   const svg = renderDinoMarkup(sp, stage);
-  return `<span class="dino-visual">${svg}<img class="dino-photo" alt="" src="assets/${sp.id}-${stage}.png"
+  return `<span class="dino-visual">${svg}<img class="dino-photo" alt="" src="assets/${sp.id}-${stage}.webp"
     onerror="this.remove()"
     onload="this.previousElementSibling.style.display='none'; this.style.display='block';"></span>`;
 }
 
-// Same idea for backgrounds: try assets/bg-<id>.png, fall back to the CSS scenery.
+// Same idea for backgrounds: try assets/bg-<id>.webp, fall back to the CSS scenery.
 function applyBackgroundPhoto(sp) {
   const img = new Image();
   const show = () => {
-    playArea.style.backgroundImage = `url(assets/bg-${sp.id}.png)`;
+    playArea.style.backgroundImage = `url(assets/bg-${sp.id}.webp)`;
     playArea.style.backgroundSize = "cover";
     playArea.style.backgroundPosition = "center";
     playArea.classList.add("has-photo-bg");
@@ -711,11 +751,17 @@ function applyBackgroundPhoto(sp) {
     playArea.style.backgroundImage = "";
     playArea.classList.remove("has-photo-bg");
   };
-  img.src = `assets/bg-${sp.id}.png`;
+  img.src = `assets/bg-${sp.id}.webp`;
 }
 
 const STATE_KEY = "dino-diet-state-v1";
+const PREVIEW_KEY = "dino-diet-preview";
 const $ = (sel) => document.querySelector(sel);
+
+// Preview mode lives in sessionStorage so it ends with the tab. While on, every
+// species is unlocked/discovered and nothing is written to the real save.
+let PREVIEW = false;
+try { PREVIEW = sessionStorage.getItem(PREVIEW_KEY) === "1"; } catch { PREVIEW = false; }
 
 // ---------------------------------------------------------------------
 // Persistent state
@@ -731,7 +777,7 @@ function loadState() {
     species: { [SPECIES[0].id]: { stage: "baby", points: 0 } }
   };
 }
-function saveState() { localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
+function saveState() { if (PREVIEW) return; localStorage.setItem(STATE_KEY, JSON.stringify(state)); }
 
 const state = loadState();
 
@@ -739,7 +785,7 @@ function speciesProgress(id) {
   if (!state.species[id]) state.species[id] = { stage: "baby", points: 0 };
   return state.species[id];
 }
-function isUnlocked(id) { return state.unlocked.includes(id); }
+function isUnlocked(id) { return PREVIEW || state.unlocked.includes(id); }
 function activeSpecies() { return SPECIES.find((s) => s.id === state.activeSpeciesId) || SPECIES[0]; }
 
 // ---------------------------------------------------------------------
@@ -790,11 +836,12 @@ function applySpeciesTheme() {
   const dino = $("#dino");
   dino.style.setProperty("--dino-color", sp.color);
   const scale = STAGE_SCALE[prog.stage];
-  const base = 120;
+  const base = 130;
   dino.style.width = (base * scale) + "px";
   dino.style.height = (base * scale) + "px";
   dino.innerHTML = renderDinoVisual(sp, prog.stage);
   applyBackgroundPhoto(sp);
+  if (PREVIEW) renderPreviewBar();
 }
 
 function renderGrowthBar() {
@@ -819,6 +866,10 @@ function setDinoPos(clientX, clientY) {
   const half = dinoEl.offsetWidth / 2;
   const x = Math.min(Math.max(clientX - rect.left, half), rect.width - half);
   const y = Math.min(Math.max(clientY - rect.top, half), rect.height - half);
+  // Art faces right; mirror it while the pointer is moving left.
+  const dx = x - dinoPos.x;
+  if (dx < -2) dinoEl.classList.add("face-left");
+  else if (dx > 2) dinoEl.classList.remove("face-left");
   dinoPos.x = x;
   dinoPos.y = y;
   dinoEl.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)`;
@@ -1077,7 +1128,7 @@ function tick(ts) {
 // ---------------------------------------------------------------------
 function renderPedia() {
   $("#pediaGrid").innerHTML = SPECIES.map((sp) => {
-    const discovered = state.pedia.includes(sp.id);
+    const discovered = PREVIEW || state.pedia.includes(sp.id);
     if (!discovered) {
       return `<div class="pedia-card locked"><span class="p-emoji">❔</span><span class="p-name">???</span></div>`;
     }
@@ -1104,12 +1155,47 @@ $("#pediaGrid").addEventListener("click", (e) => {
 // ---------------------------------------------------------------------
 // Reset
 // ---------------------------------------------------------------------
-$("#resetBtn").addEventListener("click", () => { $("#resetBackdrop").hidden = false; });
+$("#settingsBtn").addEventListener("click", () => {
+  $("#previewToggle").textContent = PREVIEW ? "Exit preview" : "Preview all dinosaurs";
+  $("#settingsBackdrop").hidden = false;
+});
+$("#settingsClose").addEventListener("click", () => { $("#settingsBackdrop").hidden = true; });
+$("#settingsBackdrop").addEventListener("click", (e) => { if (e.target.id === "settingsBackdrop") $("#settingsBackdrop").hidden = true; });
+$("#openReset").addEventListener("click", () => { $("#settingsBackdrop").hidden = true; $("#resetBackdrop").hidden = false; });
 $("#resetCancel").addEventListener("click", () => { $("#resetBackdrop").hidden = true; });
 $("#resetBackdrop").addEventListener("click", (e) => { if (e.target.id === "resetBackdrop") $("#resetBackdrop").hidden = true; });
 $("#resetConfirm").addEventListener("click", () => {
   localStorage.removeItem(STATE_KEY);
+  try { sessionStorage.removeItem(PREVIEW_KEY); } catch {}
   location.reload();
+});
+
+// ---------------------------------------------------------------------
+// Preview mode (see PREVIEW above): look at any species at any stage.
+// ---------------------------------------------------------------------
+function setPreview(on) {
+  try { if (on) sessionStorage.setItem(PREVIEW_KEY, "1"); else sessionStorage.removeItem(PREVIEW_KEY); } catch {}
+  location.reload(); // reloads the untouched real save (nothing was written while previewing)
+}
+$("#previewToggle").addEventListener("click", () => setPreview(!PREVIEW));
+$("#previewExit").addEventListener("click", () => setPreview(false));
+
+function renderPreviewBar() {
+  $("#previewBar").hidden = false;
+  const current = speciesProgress(state.activeSpeciesId).stage;
+  $("#previewStages").innerHTML = STAGE_ORDER.map((st) =>
+    `<button data-stage="${st}" class="${st === current ? "active" : ""}">${STAGE_LABEL[st]}</button>`).join("");
+}
+$("#previewStages").addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-stage]");
+  if (!btn) return;
+  const prog = speciesProgress(state.activeSpeciesId);
+  prog.stage = btn.dataset.stage;
+  prog.points = 0;
+  renderTabs();
+  applySpeciesTheme();
+  renderGrowthBar();
+  clearFood();
 });
 
 // ---------------------------------------------------------------------
@@ -1127,4 +1213,3 @@ boot();
 </script>
 </body>
 </html>
-</content>
