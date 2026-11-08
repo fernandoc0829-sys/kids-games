@@ -180,6 +180,24 @@ Planting and harvesting both use Firebase transactions so two tablets acting
 on the same plot at the same instant can't corrupt it — the second action
 is safely rejected with a friendly toast instead.
 
+## The "What does it eat?" quiz
+
+When a dino reaches **Giant**, the reveal popup offers **Take the quiz ⭐**
+(or *Skip — keep feeding*). Any discovered Dino-pedia entry also has a quiz
+button, so it can be replayed any time.
+
+- 3 questions per attempt: pick the right food, say what kind of eater the
+  dino is (carnivore / herbivore / omnivore / piscivore, each with a hint),
+  then pick the right food again.
+- Forgiving by design: a wrong answer greys out, explains why, and lets the
+  kid try again — no lives or penalties. The quiz **never gates unlocking**
+  the next dinosaur.
+- Finishing earns a ⭐ for that species (`state.stars`), shown on the
+  Dino-pedia card and as `⭐ n/7` in the pedia header. In preview mode the
+  quiz works but stars aren't saved.
+- Questions are generated from `SPECIES`, `DIET_ACCEPTS` and `FOOD_TYPES`, so
+  any species you add gets a quiz automatically.
+
 ## Customizing
 
 Everything gameplay-related is in a few clearly-labeled arrays/constants near

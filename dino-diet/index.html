@@ -262,6 +262,30 @@
   #dino.grew .dino-visual { animation: growPop 0.7s ease; }
   @keyframes growPop { 0% { filter: brightness(1); transform: scale(1); } 35% { filter: brightness(1.6); transform: scale(1.3); } 100% { filter: brightness(1); transform: scale(1); } }
 
+  /* ---------- Quiz ---------- */
+  .quiz-dots { display: flex; justify-content: center; gap: 6px; margin: 4px 0 10px; }
+  .quiz-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--card-border); }
+  .quiz-dots span.done { background: var(--leaf); }
+  .quiz-dots span.now { background: var(--amber); }
+  .quiz-options { display: grid; gap: 10px; margin: 12px 0 8px; }
+  .quiz-options.foods { grid-template-columns: repeat(3, 1fr); }
+  .quiz-opt {
+    padding: 12px 10px; border-radius: 14px;
+    background: #fff; border: 2px solid var(--card-border);
+    box-shadow: 0 3px 0 var(--card-border);
+    font-weight: 800; font-size: 1rem;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+  }
+  .quiz-options.foods .quiz-opt { font-size: 2.2rem; }
+  .quiz-opt .hint { font-size: 0.72rem; color: var(--ink-soft); font-weight: 700; }
+  .quiz-opt:active { transform: translateY(2px); box-shadow: none; }
+  .quiz-opt.wrong { opacity: 0.4; background: #f4eeee; pointer-events: none; }
+  .quiz-opt.right { background: #dff3e0; border-color: var(--leaf); pointer-events: none; }
+  #quizMsg { min-height: 2.6em; margin-bottom: 8px; }
+  .pedia-card { position: relative; }
+  .star-badge { position: absolute; top: 4px; right: 6px; font-size: 0.95rem; }
+  .pedia-fact-box .btn-primary { margin-top: 10px; }
+
   /* ---------- Preview mode ---------- */
   .preview-bar {
     display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -509,17 +533,30 @@
     <div class="reveal-name" id="revealName">Compsognathus</div>
     <div class="reveal-diet" id="revealDiet">Carnivore</div>
     <div class="reveal-fact" id="revealFact">…</div>
-    <button class="btn-primary" id="revealClose">Keep feeding!</button>
+    <button class="btn-primary" id="revealQuiz">Take the quiz ⭐</button>
+    <button class="pedia-close" id="revealClose">Skip — keep feeding</button>
   </div>
 </div>
 
 <!-- Dino-pedia -->
 <div class="backdrop" id="pediaBackdrop" hidden>
   <div class="pedia-sheet">
-    <h2>Dino-pedia 📖</h2>
+    <h2 id="pediaTitle">Dino-pedia 📖</h2>
     <div class="pedia-grid" id="pediaGrid"></div>
     <div class="pedia-fact-box" id="pediaFactBox"></div>
     <button class="pedia-close" id="pediaClose">Close</button>
+  </div>
+</div>
+
+<!-- Quiz -->
+<div class="backdrop" id="quizBackdrop" hidden>
+  <div class="reveal-card">
+    <div class="reveal-ribbon" id="quizRibbon">Quiz time!</div>
+    <div class="quiz-dots" id="quizDots"></div>
+    <div class="reveal-name" id="quizQuestion">…</div>
+    <div class="quiz-options" id="quizOptions"></div>
+    <div class="reveal-fact" id="quizMsg"></div>
+    <button class="pedia-close" id="quizClose">Not now</button>
   </div>
 </div>
 
@@ -769,11 +806,12 @@ try { PREVIEW = sessionStorage.getItem(PREVIEW_KEY) === "1"; } catch { PREVIEW =
 function loadState() {
   let saved = null;
   try { saved = JSON.parse(localStorage.getItem(STATE_KEY)); } catch { saved = null; }
-  if (saved && saved.species && saved.unlocked) return saved;
+  if (saved && saved.species && saved.unlocked) { saved.stars = saved.stars || {}; return saved; }
   return {
     activeSpeciesId: SPECIES[0].id,
     unlocked: [SPECIES[0].id],
     pedia: [],
+    stars: {},
     species: { [SPECIES[0].id]: { stage: "baby", points: 0 } }
   };
 }
@@ -1038,7 +1076,9 @@ function onStageUp(sp, newStage) {
   showStageReveal(sp, next, firstTime);
 }
 
+let revealSpeciesId = null;
 function showStageReveal(sp, next, firstTime) {
+  revealSpeciesId = sp.id;
   $("#revealRibbon").textContent = "Grew to Giant! 🎉";
   $("#revealEmoji").innerHTML = renderDinoVisual(sp, "giant");
   $("#revealName").textContent = sp.name;
@@ -1049,6 +1089,7 @@ function showStageReveal(sp, next, firstTime) {
   $("#revealBackdrop").hidden = false;
 }
 $("#revealClose").addEventListener("click", () => { $("#revealBackdrop").hidden = true; });
+$("#revealQuiz").addEventListener("click", () => { $("#revealBackdrop").hidden = true; openQuiz(revealSpeciesId); });
 $("#revealBackdrop").addEventListener("click", (e) => { if (e.target.id === "revealBackdrop") $("#revealBackdrop").hidden = true; });
 
 // ---------------------------------------------------------------------
@@ -1133,12 +1174,15 @@ function renderPedia() {
       return `<div class="pedia-card locked"><span class="p-emoji">❔</span><span class="p-name">???</span></div>`;
     }
     return `<button class="pedia-card" data-species="${sp.id}">
+      ${state.stars[sp.id] ? '<span class="star-badge">⭐</span>' : ""}
       <span class="dino-icon">${renderDinoVisual(sp, "giant")}</span>
       <span class="p-name">${sp.name}</span>
       <span class="p-diet">${DIET_LABEL[sp.diet]}</span>
     </button>`;
   }).join("");
   $("#pediaFactBox").classList.remove("show");
+  const stars = SPECIES.filter((sp) => state.stars[sp.id]).length;
+  $("#pediaTitle").textContent = `Dino-pedia 📖  ⭐ ${stars}/${SPECIES.length}`;
 }
 $("#pediaBtn").addEventListener("click", () => { renderPedia(); $("#pediaBackdrop").hidden = false; });
 $("#pediaClose").addEventListener("click", () => { $("#pediaBackdrop").hidden = true; });
@@ -1148,9 +1192,110 @@ $("#pediaGrid").addEventListener("click", (e) => {
   if (!btn) return;
   const sp = SPECIES.find((s) => s.id === btn.dataset.species);
   const box = $("#pediaFactBox");
-  box.textContent = `${DIET_LABEL[sp.diet]} — ${sp.fact}`;
+  box.innerHTML = `<div></div><button class="btn-primary quiz-btn" data-species="${sp.id}">Take the quiz ⭐</button>`;
+  box.firstChild.textContent = `${DIET_LABEL[sp.diet]} — ${sp.fact}`;
   box.classList.add("show");
 });
+$("#pediaFactBox").addEventListener("click", (e) => {
+  const btn = e.target.closest(".quiz-btn");
+  if (!btn) return;
+  $("#pediaBackdrop").hidden = true;
+  openQuiz(btn.dataset.species);
+});
+
+// ---------------------------------------------------------------------
+// Quiz: "What does it eat?" Built from SPECIES / DIET_ACCEPTS / FOOD_TYPES, so
+// every species (including future ones) gets one. Forgiving: wrong answers
+// explain and let you retry; it never gates unlocking anything.
+// ---------------------------------------------------------------------
+const DIET_HINT = { carnivore: "eats meat", herbivore: "eats plants", omnivore: "eats plants and meat", piscivore: "eats fish" };
+function shuffle(arr) {
+  const r = arr.slice();
+  for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; }
+  return r;
+}
+function dietExplain(sp) { return `${sp.name} is a ${DIET_LABEL[sp.diet].toLowerCase()} — it ${DIET_HINT[sp.diet]}.`; }
+
+function foodQuestion(sp, used) {
+  const accepted = DIET_ACCEPTS[sp.diet];
+  const goods = FOOD_TYPES.filter((f) => accepted.includes(f.kind));
+  const fresh = goods.filter((f) => !used.has(f.id));
+  const good = shuffle(fresh.length ? fresh : goods)[0];
+  used.add(good.id);
+  const bad = shuffle(FOOD_TYPES.filter((f) => !accepted.includes(f.kind))).slice(0, 2);
+  return {
+    type: "food",
+    text: `Which food would ${sp.name} eat?`,
+    options: shuffle([good, ...bad]).map((f) => ({ label: f.emoji, correct: f.id === good.id })),
+    explain: dietExplain(sp)
+  };
+}
+function dietQuestion(sp) {
+  return {
+    type: "diet",
+    text: `What kind of eater is ${sp.name}?`,
+    options: shuffle(Object.keys(DIET_LABEL)).map((d) => ({ label: DIET_LABEL[d], hint: DIET_HINT[d], correct: d === sp.diet })),
+    explain: dietExplain(sp)
+  };
+}
+function buildQuiz(sp) {
+  const used = new Set();
+  return [foodQuestion(sp, used), dietQuestion(sp), foodQuestion(sp, used)];
+}
+
+let quiz = null;
+function openQuiz(spId) {
+  const sp = SPECIES.find((s) => s.id === spId);
+  if (!sp) return;
+  quiz = { sp, qs: buildQuiz(sp), i: 0 };
+  renderQuiz();
+  $("#quizBackdrop").hidden = false;
+}
+function renderQuiz() {
+  const { qs, i } = quiz;
+  $("#quizRibbon").textContent = "Quiz time!";
+  $("#quizDots").innerHTML = qs.map((_, n) => `<span class="${n < i ? "done" : n === i ? "now" : ""}"></span>`).join("");
+  const q = qs[i];
+  $("#quizQuestion").textContent = q.text;
+  const box = $("#quizOptions");
+  box.className = "quiz-options" + (q.type === "food" ? " foods" : "");
+  box.innerHTML = q.options.map((o, n) =>
+    `<button class="quiz-opt" data-i="${n}">${o.label}${o.hint ? `<span class="hint">${o.hint}</span>` : ""}</button>`).join("");
+  $("#quizMsg").textContent = "";
+  $("#quizClose").textContent = "Not now";
+}
+function finishQuiz() {
+  const { sp } = quiz;
+  state.stars[sp.id] = true;
+  saveState();
+  $("#quizRibbon").textContent = "⭐ Star earned!";
+  $("#quizDots").innerHTML = quiz.qs.map(() => '<span class="done"></span>').join("");
+  $("#quizQuestion").textContent = `Great job, ${sp.name} expert!`;
+  $("#quizOptions").innerHTML = "";
+  $("#quizMsg").textContent = sp.fact;
+  $("#quizClose").textContent = "Keep playing";
+}
+$("#quizOptions").addEventListener("click", (e) => {
+  const btn = e.target.closest(".quiz-opt");
+  if (!btn || !quiz) return;
+  const q = quiz.qs[quiz.i];
+  const opt = q.options[Number(btn.dataset.i)];
+  if (!opt.correct) {
+    btn.classList.add("wrong");
+    $("#quizMsg").textContent = `Not quite! ${q.explain}`;
+    return;
+  }
+  btn.classList.add("right");
+  $("#quizMsg").textContent = "Yes! 🎉";
+  const myQuiz = quiz;
+  setTimeout(() => {
+    if (quiz !== myQuiz) return;
+    quiz.i += 1;
+    if (quiz.i >= quiz.qs.length) finishQuiz(); else renderQuiz();
+  }, 700);
+});
+$("#quizClose").addEventListener("click", () => { $("#quizBackdrop").hidden = true; quiz = null; });
+$("#quizBackdrop").addEventListener("click", (e) => { if (e.target.id === "quizBackdrop") { $("#quizBackdrop").hidden = true; quiz = null; } });
 
 // ---------------------------------------------------------------------
 // Reset
